@@ -5,25 +5,11 @@ import json
 
 app = Flask(__name__)
 
-tasks = [
-    {
-        'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol', 
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web', 
-        'done': False
-    }
-]
 
 app.config.update(dict(
   #  DATABASE=os.path.join(app.root_path, 'flaskr.db'),
-    SERVER_NAME = "localhost:8080",
-    DEBUG=True
+ #   SERVER_NAME = "localhost:8080",
+#    DEBUG=True
   #  SECRET_KEY='development key',
  #   USERNAME='admin',
 #    PASSWORD='default'
@@ -31,9 +17,18 @@ app.config.update(dict(
 
 
 def get_query_string(path):
+    #Check for exact match
     if path in topics:
 	print "Exact topic match found!"
 	return "select * from \"" + path + "\";"
+
+    #Check for property match 
+    parts = path.split("/")
+    lastpart = parts[-1]
+    firstpart = parts[:(-len(lastpart)-1)]
+
+    if firstpart in topics:
+        return "select "+ lastpart +" from \"" + firstpart + "\";"
 
     print "No match found"    
     return ""
