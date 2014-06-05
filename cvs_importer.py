@@ -2,6 +2,7 @@ import requests
 import pandas
 import time
 import json
+from influxdb import InfluxDBClient
 
 def download_file(url):
     local_filename = url.split('/')[-1]
@@ -52,6 +53,23 @@ def ParseCVS(file):
   print df['Line']
 
 
+def SendToInfluxDB(df,config_file="influx.json"):
+    fp = open(config_file,"r")
+    config = json.load(fp)
+    fp.close()
+    
+    client = InfluxDBClient(config.host, config.port, config.user, config.password, config.database)
+    
+    json_body = [{
+        "points": [
+            ["1", 1, 1.0],
+            ["2", 2, 2.0]
+        ],
+        "name": "foo",
+        "columns": ["column_one", "column_two", "column_three"]
+    }]
+    
+    client.write_points(json_body)
 
 
 if __name__ == "__main__":
