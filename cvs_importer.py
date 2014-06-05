@@ -69,37 +69,39 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
     #Series name
     series = FeedId + "/raw_data" 
     
-    #Check keys
-    columns = {}
-    
-    for key in df.keys()[1:]:
-        if key.lower() == "nan":
-            break
-        columns.append(key)    
-    
-    
-    
+    #Load database credentials
     fp = open(config_file,"r")
     config = json.load(fp)
     fp.close()
     
+    #Connect
     client = InfluxDBClient(config.host, config.port, config.user, config.password, config.database)
     
-    
+    #Save each row
     for i in range(0,Data.shape[0]):
-        timestamp = time.Data.irow(i)[0]
+        timestamp = Data.irow(i)[0]
+        col = {"time"}
+        data = [int(timestamp*1000)]
+        
+        
+        #Remove NANs
+        for j in range(1,Data.shape[1]):
+            if Data[i][j] == "NaN" or Data[i][j] == "nan":
+                continue
+            
+            #Add key
+            col.append[Data.keys()[j]]
+            data.append[Data[i][j]]
+            
+        fdata = [{
+            "points": [data]
+            "name": series
+            "columns": col
+            }]
     
-    json_body = [{
-        "points": [
-            ["1", 1, 1.0],
-            ["2", 2, 2.0]
-        ],
-        "name": "foo",
-        "columns": ["column_one", "column_two", "column_three"]
-    }]
-    
-    client.write_points(json_body)
+        client.write_points_with_precision(fdata,"m")
 
+    return
 
 if __name__ == "__main__":
 
