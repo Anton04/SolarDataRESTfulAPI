@@ -15,7 +15,10 @@ def download_file(url):
     return local_filename
     
 def LoadSiteIds(file="SiteIDs.json"):
-    return json.load(file)
+    fp = open(file,"r")
+    dic = json.load(fp)
+    fp.close()
+    return dic
     
 def ParseSLBData(id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   
