@@ -3,6 +3,7 @@ import pandas
 import time
 import json
 from influxdb import InfluxDBClient
+import nympy
 
 def download_file(url):
     local_filename = url.split('/')[-1]
@@ -41,12 +42,12 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   
   #Delete trailing columns with junk. 
   for key in df.keys()[-5:df.shape[1]-1]:
-      if key.find(slb_id) != -1:
+      if key.find(slb_id) == -1:
           del df[key]
 
   #Reformat timestamps
   for i in range(0,df.shape[0]):
-      if df["Time"][i].lower().find("nan") != -1:
+      if df["Time"][i].lower().find("nan") != -1 or numpy.isnan(df["Time"][i]):
           df = df.drop(df.index[i])
           continue
       timestamp = time.mktime(time.strptime(df["Time"][i],"%y-%m-%d %H:%M"))
@@ -80,10 +81,10 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
     #Connect
     client = InfluxDBClient(config["host"], config["port"], config["user"], config["password"], config["database"])
     
-    #Save each row
+  #Save each row
     for i in range(0,Data.shape[0]):
         timestamp = Data.irow(i)[0]
-        col = {"time"}
+        column = ["time"]
         data = [int(timestamp*1000)]
         
         
@@ -93,18 +94,17 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
                 continue
             
             #Add key
-            col.append[Data.keys()[j]]
-            data.append[Data[i][j]]
+            column.append(Data.keys()[j])
+            data.append(Data.iloc[i,j])
             
         fdata = [{
             "points": [data],
             "name": series,
-            "columns": col
+            "columns": column
             }]
     
         client.write_points_with_precision(fdata,"m")
-
-    return
+        return
 
 if __name__ == "__main__":
 
