@@ -17,7 +17,7 @@ def download_file(url):
 def LoadSiteIds(file="SiteIDs.json"):
     return json.load(file)
     
-def ParseSLBData(id="h00t",start,stop):
+def ParseSLBData(id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   
   starttime = time.strftime("%y%m%d%H%M",start)
   stoptime = time.strftime("%y%m%d%H%M",stop)
@@ -53,6 +53,9 @@ def ParseCVS(file):
 
 if __name__ == "__main__":
 
-  ParseCVS("testdata/h00t_1310160720_1406030410.csv")
+  #ParseCVS("testdata/h00t_1310160720_1406030410.csv")
+  SiteIDs = LoadSiteIds()
   
+  Data = ParseSLBData(SiteIDs.keys()[0])
   
+  print Data.
