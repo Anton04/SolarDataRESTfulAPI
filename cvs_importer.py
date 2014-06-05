@@ -89,7 +89,7 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
         
         #Remove NANs
         for j in range(1,Data.shape[1]):
-            if Data.iloc[i,j] == "NaN" or Data[i][j] == "nan":
+            if Data.iloc[i,j] == "NaN" or Data.iloc[i,j] == "nan":
                 continue
             
             #Add key
