@@ -34,7 +34,7 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   cols = cl.keys()
   cols = cols[2:]
   col2 = cols.insert(0,"Time")
-  col2 = cols2.insert(-1,"NAN")
+  col2 = col2.insert(-1,"NAN")
   
   #Set data keys as column descriptors
   df.columns = col2
