@@ -1,6 +1,7 @@
 import requests
 import pandas
 import time
+import json
 
 def download_file(url):
     local_filename = url.split('/')[-1]
@@ -13,12 +14,10 @@ def download_file(url):
                 f.flush()
     return local_filename
     
-    
+def LoadSiteIds(file="SiteIDs.json"):
+    return json.load(file)
     
 def ParseSLBData(id="h00t",start,stop):
-  id = "h00t"
-  
-  
   
   starttime = time.strftime("%y%m%d%H%M",start)
   stoptime = time.strftime("%y%m%d%H%M",stop)
