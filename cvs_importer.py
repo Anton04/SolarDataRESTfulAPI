@@ -30,10 +30,11 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   df = pandas.read_csv(url,sep = ";",parse_dates=[[0, 1]],skiprows=8, header = None ,infer_datetime_format = True,na_values = ["     ","    ","  "," ",""])
   cl = pandas.read_csv(url,sep = ";", header = 6,error_bad_lines= False,na_values = [""],nrows=1)
 
-  #Align keys to data. 
+  #Align keys to data and rename time col. 
   cols = cl.keys()
-  cols = cols[1:]
-  col2 = cols.insert(-1,"NAN")
+  cols = cols[2:]
+  col2 = cols.insert(0,"Time")
+  col2 = cols2.insert(-1,"NAN")
   
   #Set data keys as column descriptors
   df.columns = col2
@@ -42,6 +43,11 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   for key in df.keys()[-5:df.shape[1]-1]:
       if key.find(slb_id) != -1:
           del df[key]
+
+  #Reformat timestamps
+  for i in range(0,Data.shape[1]):
+      timestamp = time.mktime(time.strptime(Data["Time"][i],"%y-%m-%d %H:%M"))
+      Data["Time"][i] = timestamp
 
   return df
   
@@ -81,7 +87,7 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
     
     
     for i in range(0,Data.shape[0]):
-        
+        timestamp = time.Data.irow(i)[0]
     
     json_body = [{
         "points": [
