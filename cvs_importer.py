@@ -45,9 +45,9 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
           del df[key]
 
   #Reformat timestamps
-  for i in range(0,Data.shape[1]):
-      timestamp = time.mktime(time.strptime(Data["Time"][i],"%y-%m-%d %H:%M"))
-      Data["Time"][i] = timestamp
+  for i in range(0,df.shape[1]):
+      timestamp = time.mktime(time.strptime(df["Time"][i],"%y-%m-%d %H:%M"))
+      df["Time"][i] = timestamp
 
   return df
   
