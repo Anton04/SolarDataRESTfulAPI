@@ -94,8 +94,8 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
             data.append[Data[i][j]]
             
         fdata = [{
-            "points": [data]
-            "name": series
+            "points": [data],
+            "name": series,
             "columns": col
             }]
     
