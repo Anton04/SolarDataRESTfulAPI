@@ -21,11 +21,11 @@ def LoadSiteIds(file="SiteIDs.json"):
     fp.close()
     return dic
     
-def ParseSLBData(id="h00t",start=time.time()-(24*60*60),stop=time.time()):
+def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   
   starttime = time.strftime("%y%m%d%H%M",time.localtime(start))
   stoptime = time.strftime("%y%m%d%H%M",time.localtime(stop))
-  url = "http://slb.nu/soldata/index.php?KEY=%s&start=%s&stop=%s" %(id,starttime,stoptime)
+  url = "http://slb.nu/soldata/index.php?KEY=%s&start=%s&stop=%s" %(slb_id,starttime,stoptime)
 
   df = pandas.read_csv(url,sep = ";",parse_dates=[[0, 1]],skiprows=8, header = None ,infer_datetime_format = True,na_values = ["     ","    ","  "," ",""])
   cl = pandas.read_csv(url,sep = ";", header = 6,error_bad_lines= False,na_values = [""],nrows=1)
@@ -37,6 +37,11 @@ def ParseSLBData(id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   
   #Set data keys as column descriptors
   df.columns = col2
+  
+  #Delete trailing columns with junk. 
+  for key in df.keys()[-5:df.shape[1]-1]:
+      if key.find(slb_id) != -1:
+          del df[key]
 
   return df
   
@@ -53,12 +58,30 @@ def ParseCVS(file):
   print df['Line']
 
 
-def SendToInfluxDB(df,config_file="influx.json"):
+def SendToInfluxDB(df,FeedId,config_file="influx.json"):
+    
+    #Series name
+    series = FeedId + "/raw_data" 
+    
+    #Check keys
+    columns = {}
+    
+    for key in df.keys()[1:]:
+        if key.lower() == "nan":
+            break
+        columns.append(key)    
+    
+    
+    
     fp = open(config_file,"r")
     config = json.load(fp)
     fp.close()
     
     client = InfluxDBClient(config.host, config.port, config.user, config.password, config.database)
+    
+    
+    for i in range(0,Data.shape[0]):
+        
     
     json_body = [{
         "points": [
