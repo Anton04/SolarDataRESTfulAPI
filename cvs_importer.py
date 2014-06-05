@@ -75,7 +75,7 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
     fp.close()
     
     #Connect
-    client = InfluxDBClient(config.host, config.port, config.user, config.password, config.database)
+    client = InfluxDBClient(config["host"], config["port"], config["user"], config["password"], config["database"])
     
     #Save each row
     for i in range(0,Data.shape[0]):
