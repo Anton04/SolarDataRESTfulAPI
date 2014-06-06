@@ -3,7 +3,7 @@ import pandas
 import time
 import json
 from influxdb import InfluxDBClient
-import nympy
+import numpy
 
 def download_file(url):
     local_filename = url.split('/')[-1]
@@ -47,7 +47,7 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
 
   #Reformat timestamps
   for i in range(0,df.shape[0]):
-      if df["Time"][i].lower().find("nan") != -1 or numpy.isnan(df["Time"][i]):
+      if numpy.isnan(df["Time"][i]) or str(df["Time"][i]).lower().find("nan") != -1 :
           df = df.drop(df.index[i])
           continue
       timestamp = time.mktime(time.strptime(df["Time"][i],"%y-%m-%d %H:%M"))
