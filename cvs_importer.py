@@ -67,6 +67,59 @@ def ParseCVS(file):
   print df
   print df['Line']
 
+class InfluxFeedLTSInterface(InfluxDBClient):
+  def __init__(self,config_file="influx.json"):
+
+    #Load database credentials
+    fp = open(config_file,"r")
+    self.config = json.load(fp)
+    fp.close()
+    
+    #Connect
+    InfluxDBClient.__init__(self.config["host"], self.config["port"], self.config["user"], self.config["password"], self.config["database"])
+
+  def GetLastTimeStamp(self,FluxId):
+
+    result = self.query('select time,value from %s order asc limit 1;' % FluxId, time_precision='m')
+
+    try:
+      return float(result[0]["points"][0][0])/1000.0
+    except:
+      return 0.0
+
+  def SendToInfluxDB(self,df,FeedId):
+    #Series name
+    series = FeedId + "/raw_data" 
+
+    #Save each row
+    for i in range(0,Data.shape[0]):
+        timestamp = Data.irow(i)[0]
+        column = ["time"]
+        data = [int(timestamp*1000)]
+        
+        
+        #Remove NANs
+        for j in range(1,Data.shape[1]):
+          if numpy.isnan(Data.iloc[i,j]):
+            continue
+            
+          #Add key
+          column.append(Data.keys()[j])
+          data.append(Data.iloc[i,j])
+
+        #If there where only nan on this row continue to next row. 
+        if len(column) == 0:
+          continue
+            
+        fdata = [{
+            "points": [data],
+            "name": series,
+            "columns": column
+            }]
+    
+        self.write_points_with_precision(fdata,"m")
+        return
+
 
 def SendToInfluxDB(df,FeedId,config_file="influx.json"):
     
@@ -81,7 +134,7 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
     #Connect
     client = InfluxDBClient(config["host"], config["port"], config["user"], config["password"], config["database"])
     
-  #Save each row
+    #Save each row
     for i in range(0,Data.shape[0]):
         timestamp = Data.irow(i)[0]
         column = ["time"]
@@ -106,11 +159,32 @@ def SendToInfluxDB(df,FeedId,config_file="influx.json"):
         client.write_points_with_precision(fdata,"m")
         return
 
+def lastValueTime(influx_ID):
+  
+
+
+
 if __name__ == "__main__":
 
   #ParseCVS("testdata/h00t_1310160720_1406030410.csv")
   SiteIDs = LoadSiteIds()
-  
-  Data = ParseSLBData(SiteIDs.keys()[0])
-  
-  print Data.
+
+  Feeds = InfluxFeedLTSInterface()
+
+  #Get all data until now + 1h
+  StopTime = time.time() + 3600
+
+
+  PeriodLen = 60*60*24*7
+
+  for Site in SiteIDs:
+    FeedId = "\"%s/raw_data\"" % SiteIDs[Site]
+    StartTime = Feeds.GetLastTimeStamp(FeedId)
+
+    for period in range(StartTime,StopTime,PeriodLen):
+      print "Reading SLB data from: " + Site
+      Data = ParseSLBData(Site)
+      print "Sending data to influx as: " + FeedId
+      Feeds.SendToInfluxDB(Data,FeedId)
+
+
