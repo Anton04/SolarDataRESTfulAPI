@@ -103,7 +103,12 @@ UniverseDef = {"Name":"Soldata",
 #Class implementing a feed universe defined by feed definitions a realtime data access and longterm strorage.
 class Universe:
   def __init__(self,Defenition="DataFeedUniverse.json",AutoloadFeeds = True,Active = False):
-    if type(Defenition) == type(""):
+    if Defenition == None:
+      #Produce new Universe
+      #Not implemented
+      return
+      
+    elif type(Defenition) == type(""):
       File = open(Defenition,"r")
       self.DefDict = json.load(File)
       File.close()
@@ -127,7 +132,7 @@ class Universe:
     File = open(FileName,"r")
     self.DefDict = json.load(File)
     File.close()
-  def SaveFeedsFromFile(self,FileName):
+  def SaveFeedsToFile(self,FileName):
     return
             
     
@@ -139,15 +144,27 @@ class Feed:
     
 #Class implementing a stream.    
 class Stream:
-  def __init__(self,Feed,Name,RTS_ID = None,LTS_ID = None,KeepAlive=0):
+  def __init__(self,Defenition,Feed):
     self.Feed = Feed
     self.Name = Name
     self.RTS_ID = RTS_ID
     self.LTS_ID = LTS_ID
     self.KeepAlive = KeepAlive
     self.DerivedFromStreams = None
+    self.SampleRate = None
+    self.Threshhold = None
     
     return
+  
+  def GetStreamDefenition(self):
+    Defenition = {}
+    Defenition["Name"] = self.Name
+    Defenition["RTS ID"] = self.RTS_ID
+    Defenition["LTS ID"] = self.LTS_ID
+    
+    return Defenition
+    
+    
   
 if __name__ == "__main__":
   MyUniverse = Universe(UniverseDef,AutoloadFeeds = False)
