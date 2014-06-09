@@ -4,28 +4,31 @@ import json
 import mosquitto 
 
 #Abstraction layer for accessing long time storage
-class LTSLink():
+class LTSInterface():
   def __init__(self):
     return
     
 #Abstraction layer for accessing realtime system    
-class RTSLink():
+class RTSInterface():
   def __init__(self):
     return
 
 #Abstraction layer for accessing a feed repository    
-class REPLink():
+class REPInterface():
   def __init__(self):
     return
 
 #Class implementing access to influxDB    
 class InfluxFeedLTSInterface(InfluxDBClient):
-  def __init__(self,config_file="influx.json"):
-
-    #Load database credentials
-    fp = open(config_file,"r")
-    self.config = json.load(fp)
-    fp.close()
+  def __init__(self,config_param="influx.json"):
+    
+    if type(Defenition) == type(""):
+      #Load database credentials from file
+      fp = open(config_param,"r")
+      self.config = json.load(fp)
+      fp.close()
+    elif type(Defenition) == type({}):
+      self.config = config_param
     
     #Connect
     InfluxDBClient.__init__(self,self.config["host"], self.config["port"], self.config["user"], self.config["password"], self.config["database"])
