@@ -1,0 +1,37 @@
+{"FEEDLIST":
+    [
+    
+      {"FEED ID":"46d55815-f927-459f-a8e2-8bbcd88008ee",
+       "Name":"46d55815-f927-459f-a8e2-8bbcd88008ee",
+       "ALIAS":["Stockholm hamnar"],
+       "TAGS"={},
+       "Streams":
+              [
+                    {
+                      "Name":"M0Pac001",
+                      "LTS ID":"by-id/46d55815-f927-459f-a8e2-8bbcd88008ee/raw_data/M0Pac001",
+                      "RTS ID":"SLB/h00t/M0Pac001"
+                    },
+                    {
+                      "Name":"M0Pac002",
+                      "LTS ID":"by-id/46d55815-f927-459f-a8e2-8bbcd88008ee/raw_data/M0Pac002",
+                      "RTS ID":"SLB/h00t/M0Pac002"
+                    },
+                    {
+                      "Name":"M0Pac003",
+                      "LTS ID":"by-id/46d55815-f927-459f-a8e2-8bbcd88008ee/raw_data/M0Pac003",
+                      "RTS ID":"SLB/h00t/M0Pac003"
+                    },
+                      "Name":"Total Power",
+                      "LTS ID":"by-id/46d55815-f927-459f-a8e2-8bbcd88008ee/production/power",
+                      "RTS ID":"by-id/46d55815-f927-459f-a8e2-8bbcd88008ee/production/power"
+                    }
+                    
+                     
+              ]
+  
+      }
+    
+    ]
+  "Universe":"2342343454666"  
+}
