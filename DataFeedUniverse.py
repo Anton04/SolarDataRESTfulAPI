@@ -93,10 +93,11 @@ UniverseDef = {"Name":"Soldata",
                   "host":"livinglab2.powerprojects.se",
                    "port":8086,
                    "user":"uploader",
-                   "password":"ryKkSSnveKVpUMROt8kqvZCGJXJveu8MkJO",
+                   "password":"",
                    "database":"by-id"}
                 "RTS TYPE":"MQTT"
                 "RTS DATA":{}
+                
               }
 
 #Class implementing a feed universe defined by feed definitions a realtime data access and longterm strorage.
@@ -131,7 +132,7 @@ class Feed:
     self.Universe = Universe
     Streams = []
     
-    
+#Class implementing a stream.    
 class Stream:
   def __init__(self,Feed,Name,RTS_ID = None,LTS_ID = None,KeepAlive=0):
     self.Feed = Feed
@@ -139,7 +140,15 @@ class Stream:
     self.RTS_ID = RTS_ID
     self.LTS_ID = LTS_ID
     self.KeepAlive = KeepAlive
+    self.DerivedFromStreams = None
     
     return
+  
+if __name__ == "__main__":
+  MyUniverse = Universe(UniverseDef)
+  
+  MyUniverse.LoadFeedsFromFile("SLBFeeds.json")
+  
+  
   
   
