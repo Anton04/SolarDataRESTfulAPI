@@ -105,18 +105,28 @@ class Universe:
     if type(Defenition) == type(""):
       File = open(Defenition,"r")
       self.DefDict = json.load(File)
+      File.close()
     elif type(Defenition) == type({}):
       self.DefDict = Defenition
       
     if self.DefDict["LTS TYPE"] == "InfluxDB"
-      self.LTS = InfluxDB_LTSLink()
+      self.LTS = InfluxFeedLTSInterface(self.DefDict["LTS DATA"])
       
     return
   
-  
+  def GetFeedFromDefenition(self,Defenition):
+    if type(Defenition) == type(""):
+      File = open(Defenition,"r")
+      self.DefDict = json.load(File)
+      File.close()
+    elif type(Defenition) == type({}):
+      self.DefDict = Defenition
+      
+    
             
     
 #Class implementing a feed     
 class Feed:
-  def __init__(self,Defenition):
+  def __init__(self,Defenition,RTS=None,LTS=None):
     
+
