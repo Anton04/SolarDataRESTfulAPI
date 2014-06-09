@@ -133,9 +133,13 @@ class Feed:
     
     
 class Stream:
-  def __init__(self,Defenition,Feed = None):
-    self.Name=None
-    self.RTS_ID = ""
-    self.LTS_ID = "" 
-    self.TIMEOUT = 600000
-
+  def __init__(self,Feed,Name,RTS_ID = None,LTS_ID = None,KeepAlive=0):
+    self.Feed = Feed
+    self.Name = Name
+    self.RTS_ID = RTS_ID
+    self.LTS_ID = LTS_ID
+    self.KeepAlive = KeepAlive
+    
+    return
+  
+  
