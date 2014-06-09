@@ -86,23 +86,14 @@ class Mosquitto_RTSLink(RTSLink):
     return
   
   
-UniverseDef = {"Name":"Soldata",
-               "ID":"12312-234234-2342",
-               "LTS TYPE":"InfluxDB"
-               "LTS DATA":{
-                  "host":"livinglab2.powerprojects.se",
-                   "port":8086,
-                   "user":"uploader",
-                   "password":"",
-                   "database":"by-id"}
-                "RTS TYPE":"MQTT"
-                "RTS DATA":{}
-                
-              }
+
 
 #Class implementing a feed universe defined by feed definitions a realtime data access and longterm strorage.
 class Universe:
-  def __init__(self,Defenition="DataFeedUniverse.json",AutoloadFeeds = True,Active = False):
+  def __init__(self,Defenition="Universe.json",AutoloadFeeds = True,Active = False):
+    
+    self.Active = Active
+    
     if Defenition == None:
       #Produce new Universe
       #Not implemented
@@ -112,6 +103,11 @@ class Universe:
       File = open(Defenition,"r")
       self.DefDict = json.load(File)
       File.close()
+      self.ID = DefDict["ID"]
+      
+      if AutoloadFeeds:
+        self.LoadFeedsFromFile(DefDict["Feeds"])
+      
     elif type(Defenition) == type({}):
       self.DefDict = Defenition
       
@@ -130,8 +126,17 @@ class Universe:
       
   def LoadFeedsFromFile(self,FileName):
     File = open(FileName,"r")
-    self.DefDict = json.load(File)
+    self.FeedsList = json.load(File)
     File.close()
+    self.LoadFeedsFromList(FeedList)
+    
+  def LoadFeedsFromList(self,FeedsList)
+    for Feed in FeedList:
+      print "Feed"
+      
+    return
+  
+  
   def SaveFeedsToFile(self,FileName):
     return
             
