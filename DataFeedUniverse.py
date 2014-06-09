@@ -11,6 +11,11 @@ class RTSLink():
   def __init__(self):
     return
 
+#Abstraction layer for accessing a feed repository    
+class REPLink():
+  def __init__(self):
+    return
+
 #Class implementing access to influxDB    
 class InfluxDB_LTSLink(LTSLink):
   def __init__(self):
@@ -22,6 +27,12 @@ class Mosquitto_RTSLink(RTSLink):
     return
 
 #Class implementing a feed universe defined by feed definitions a realtime data access and longterm strorage.
-class Universe:
+class Universe(LTSLink,RTSLink,REPLink):
+  def __init__(self,Defenition):
+    self.LTSLink = None
+    self.RTSLink = None
+    
+#Class implementing a feed     
+class Feed:
   def __init__(self,Defenition):
     
