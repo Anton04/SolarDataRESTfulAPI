@@ -12,4 +12,5 @@
     }
   "RTS TYPE":"MQTT"
   "RTS DATA":{}
+  "FEEDS":"Feeds.json"
 }
