@@ -127,6 +127,8 @@ class Universe:
     
 #Class implementing a feed     
 class Feed:
-  def __init__(self,Defenition,RTS=None,LTS=None):
+  def __init__(self,Defenition,Universe = None):
+    self.Universe = Universe
+    
     
 
