@@ -129,6 +129,13 @@ class Universe:
 class Feed:
   def __init__(self,Defenition,Universe = None):
     self.Universe = Universe
+    Streams = []
     
     
+class Stream:
+  def __init__(self,Defenition,Feed = None):
+    self.Name=None
+    self.RTS_ID = ""
+    self.LTS_ID = "" 
+    self.TIMEOUT = 600000
 
