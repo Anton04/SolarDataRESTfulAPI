@@ -25,6 +25,7 @@
                       "LTS ID":"by-id/46d55815-f927-459f-a8e2-8bbcd88008ee/raw_data/M0Pac003",
                       "RTS ID":"SLB/h00t/M0Pac003"
                     },
+                    {
                       "STREAM ID":"PacTot",
                       "Name":"Total Power",
                       "LTS ID":"by-id/46d55815-f927-459f-a8e2-8bbcd88008ee/production/power",
