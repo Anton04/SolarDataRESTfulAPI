@@ -27,10 +27,13 @@ class Mosquitto_RTSLink(RTSLink):
     return
 
 #Class implementing a feed universe defined by feed definitions a realtime data access and longterm strorage.
-class Universe(LTSLink,RTSLink,REPLink):
+class Universe:
   def __init__(self,Defenition):
-    self.LTSLink = None
-    self.RTSLink = None
+    if type(Defenition) == type(""):
+      File = open(Defenition,"r")
+      DefDict = json.load(File)
+      
+      
     
 #Class implementing a feed     
 class Feed:
