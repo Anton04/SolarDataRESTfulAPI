@@ -56,7 +56,7 @@ class Universe:
     self.Name = self.DefDict["Name"]
     self.ID = self.DefDict["ID"]
       
-    if self.DefDict["LTS TYPE"] == "InfluxDB"
+    if self.DefDict["LTS TYPE"] == "InfluxDB":
       self.LTS = InfluxDBInterface(self.DefDict["LTS DATA"])
 
     if AutoloadFeeds == True:
