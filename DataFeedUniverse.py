@@ -1,5 +1,5 @@
 #!/bin/python
-from pubsub import pub
+#from pubsub import pub
 import json
 import mosquitto 
 from InfluxDBInterface import InfluxDBInterface
