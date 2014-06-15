@@ -64,24 +64,26 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
 
 #{"TYPE":"Feed",
 # "Name":"test",
-# "ID":"23423-2423432-23432"
+# "ID":"23423-2423432-23432",
+# "UNIVERSE":"1232-24234-234"
 # "STREAMS":[{
 #   "NAME":"MPOWc001",
-#   "RTS TYPE":"MQTT",
-#   "LTS TYPE":"INFLUXDB",
 #   "RTS ID":"/SLB/h00t/MPOWc001",
 #   "LTS ID":"23324-23432-2342/raw_data/MPOWc001",
 #   "TIMEOUT":"600000"}]
 # "METADATA":[]
 
-
-
+#Universe (DEFS, RTS medium, LTS medium)
+#   Feeds (META, STREAMS)
+#     Streams (LTS ID,RTS ID)
+#
 
 
 
 #Geterate stream defenitions. 
-def GenerateStreamDefenitions(Data,SiteIDs):
-
+def GenerateSLBFeedDefenitions(Data,SiteIDs):
+  FeedDef = {}
+  
 
 
 
