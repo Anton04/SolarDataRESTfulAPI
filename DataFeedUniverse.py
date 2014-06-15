@@ -22,7 +22,7 @@ class REPInterface():
 
     
 #Class implementing access to MQTT via mosquitto    
-class Mosquitto_RTSLink(RTSLink):
+class Mosquitto_RTSLink(RTSInterface):
   def __init__(self):
     return
   
