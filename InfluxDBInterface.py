@@ -1,7 +1,9 @@
 #!/bin/python
+from influxdb import InfluxDBClient
+
 
 #Class implementing access to influxDB    
-class InfluxFeedLTSInterface(InfluxDBClient):
+class InfluxDBInterface(InfluxDBClient):
   def __init__(self,config_param="influx.json"):
     
     if type(Defenition) == type(""):
