@@ -79,7 +79,7 @@ class Universe:
     File.close()
     self.LoadFeedsFromList(FeedList)
     
-  def LoadFeedsFromList(self,FeedsDsc)
+  def LoadFeedsFromList(self,FeedsDsc):
 
     FeedList = FeedsDsc["FEEDLIST"]
 
