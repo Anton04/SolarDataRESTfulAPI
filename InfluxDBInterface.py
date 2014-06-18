@@ -1,30 +1,90 @@
 #!/bin/python
 from influxdb import InfluxDBClient
-
+import json
 
 #Class implementing access to influxDB    
-class InfluxDBInterface(InfluxDBClient):
-  def __init__(self,config_param="influx.json"):
+class InfluxDBInterface():
+  def __init__(self,config_param="influxInterfaceCredentials.json"):
     
-    if type(Defenition) == type(""):
+    if type(config_param) == type(""):
       #Load database credentials from file
       fp = open(config_param,"r")
       self.config = json.load(fp)
       fp.close()
-    elif type(Defenition) == type({}):
+    elif type(config_param) == type({}):
       self.config = config_param
     
     #Connect
-    InfluxDBClient.__init__(self,self.config["host"], self.config["port"], self.config["user"], self.config["password"], self.config["database"])
+    print self.config
 
-  def GetLastTimeStamp(self,FluxId):
+    self.databases = {}
 
-    result = self.query('select time from \"%s\" order desc limit 1;' % FluxId, time_precision='m')
+    for db in self.config:
+    	database = InfluxDBClient(db["host"], db["port"], db["user"], db["password"], db["database"])
+	self.databases[db["database"]]=database
+
+    return 
+
+  def GetDatabaseFromTopicPath(self,topic):
+    dbname = topic.split("/")[0]
+    dbname = dbname.strip("/")
+
+    if dbname in self.databases:
+	return self.databases[dbname]
+    
+    return None
+
+  def GetLastTimeStamp(self,topic):
+
+    result = self.GetDatabaseFromTopicPath(topic).query('select time from \"%s\" order desc limit 1;' % topic, time_precision='m')
 
     try:
       return float(result[0]["points"][0][0])/1000.0
     except:
       return 0.0
+
+  def GetLastTimeStamp2(self,database,series):
+
+    result = self.databases[database].query('select time from \"%s\" order desc limit 1;' % series, time_precision='m')
+
+    try:
+      return float(result[0]["points"][0][0])/1000.0                
+    except:
+      return 0.0
+
+  def GetLastTimeStamp3(self,database,series,property):
+
+    result = self.databases[database].query('select %s from \"%s\" order desc limit 1;' % (property,series), time_precision='m')
+
+    print result 
+
+    try:
+      return float(result[0]["points"][0][0])/1000.0
+    except:
+      return 0.0
+
+  def GetLastValue3(self,database,series,property):
+
+    result = self.databases[database].query('select %s from \"%s\" order desc limit 1;' % (property,series), time_precision='m')
+
+    print result
+
+    try:
+      return float(result[0]["points"][0][0])/1000.0
+    except:
+      return 0.0
+
+
+  def listdataseries(self):
+    series = []
+    for dbname in self.databases:
+        database = self.databases[dbname]
+	result = database.query("list series;")
+
+	for item in result:
+            series.append(dbname + "/" +item["name"])
+
+    return series
 
   def SendToInfluxDB(self,df,FeedId):
     #Series name
