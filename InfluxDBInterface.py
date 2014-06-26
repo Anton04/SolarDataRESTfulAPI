@@ -5,6 +5,27 @@ import pandas as pd
 
 class InfluxDBlayer(InfluxDBClient):  
 
+
+  def ProcessSeriesParameter(self,series):
+    #Handle indexing instead of name
+    if type(series) == int:
+        Series = self.ListSeries()
+        Series.sort()
+        series = Series[series]
+        print "Series %s selected" % series
+
+    return series
+
+  def ProcessPropParameter(self,properties):
+    if type(properties) == type([]):
+        combined = ""
+        for part in properties:
+            combined += part + ", "
+
+        properties = combined[:-2]
+
+    return properties
+
   def GetLastTimestamp(self,series,property = "*",time_precision='m'):
     return self.GetLastValue(series,property,time_precision)[0]
 
@@ -27,24 +48,15 @@ class InfluxDBlayer(InfluxDBClient):
     return res[0]["columns"][2:]
 
   def GetDataAfterTime(self,series,properties="*",timestamp=None,limit=10,time_precision='s'):
-
+    
     #Handle indexing instead of name
-    if type(series) == int():
-	Series = self.ListSeries()
-        Series.sort()
-        series = Series[series]
-        print "Series %s selected" % series
+    series = self.ProcessSeriesParameter(series)    
 
     #If no time specified start from the beginning. 
     if timestamp == None:
-        timestamp == self.GetFirstTimestamp(series,properties,'m')/1000.0
+        timestamp = self.GetFirstTimestamp(series,properties,'m')/1000.0
 
-    if type(properties) == type([]):
-        combined = ""
-        for part in properties:
-            combined += part + ", "
-
-        properties = combined[:-2]
+    properties = self.ProcessPropParameter(properties)
 
     qstring = "select %s from %s where time > %i order asc limit %i" % (properties,series,int(timestamp*1000000000),limit)
     res = self.query(qstring,time_precision)
@@ -65,18 +77,13 @@ class InfluxDBlayer(InfluxDBClient):
     return df
 
   def GetDataPeriod(self,series,properties,start,lenght=60*60*24*7,limit=1000,time_precision='s'):
+    series = self.ProcessSeriesParameter(series)
 
     start = int(start*1000000)
     lenght = int(lenght*1000000)
     stop = start + lenght
 
-    if type(properties) == type([]):
-	combined = ""
-        for part in properties:
-            combined += part + ", "
-
-        properties = combined[:-2] 
-
+    properties = self.ProcessPropParameter(properties)
 
     qstring = "select %s from %s where time > %iu and time < %iu limit %i" %(properties,series,start,stop,limit)
 
@@ -88,6 +95,9 @@ class InfluxDBlayer(InfluxDBClient):
 	
 
   def GetPropertiesPartiallyMatchingAbutNotB(self,series,keyA,keyB):
+
+    series = self.ProcessSeriesParameter(series)
+
     res = self.GetPropertiesPartiallyMatching(series,keyA)
 
     ret = []
@@ -101,7 +111,7 @@ class InfluxDBlayer(InfluxDBClient):
 
 
   def GetPropertiesPartiallyMatching(self,series,key):
-
+    series = self.ProcessSeriesParameter(series)
     properties = self.GetProperties(series)
 
     ret = []
@@ -114,27 +124,11 @@ class InfluxDBlayer(InfluxDBClient):
 
     return ret
 
-  def GetLastValue(self,series,property = "*",time_precision='m'):
+  def GetLastValue(self,series,properties="*",time_precision='m'):
+    series = self.ProcessSeriesParameter(series)
+    properties = self.ProcessPropParameter(properties)
 
-    result = self.query('select %s from \"%s\" order desc limit 1;' % (property,series), time_precision)
-
-    #print result
-
-    try:
-      ret = result[0]["points"][0][2:]
-      time = result[0]["points"][0][0]
-      if len(ret) == 1:
-          return (time,ret[0])
-      elif len(ret) == 0:
-          return (None,None)
-      else:
-          return (time,ret)
-    except:
-      return (None,None)
-
-  def GetFirstValue(self,series,property = "*",time_precision='m'):
-
-    result = self.query('select %s from \"%s\" order asc limit 1;' % (property,series), time_precision)
+    result = self.query('select %s from \"%s\" order desc limit 1;' % (properties,series), time_precision)
 
     #print result
 
@@ -150,7 +144,58 @@ class InfluxDBlayer(InfluxDBClient):
     except:
       return (None,None)
 
-  def Save(self,Series,DataFrame):
+  def GetFirstValue(self,series,properties="*",time_precision='m'):
+    series = self.ProcessSeriesParameter(series)
+    properties = self.ProcessPropParameter(properties)
+
+    result = self.query('select %s from \"%s\" order asc limit 1;' % (properties,series), time_precision)
+
+    #print result
+
+    try:
+      ret = result[0]["points"][0][2:]
+      time = result[0]["points"][0][0]
+      if len(ret) == 1:
+          return (time,ret[0])
+      elif len(ret) == 0:
+          return (None,None)
+      else:
+          return (time,ret)
+    except:
+      return (None,None)
+
+  def Replace(self,series,DataFrame,time_precision = 's'):
+    series = self.ProcessSeriesParameter(series)
+
+    From = DataFrame.index[0]
+    To = DataFrame.index[-1]
+
+    self.ClearPeriod(series,From,To,time_precision)
+    self.Save(series,DataFrame,time_precision)
+
+  def ClearPeriod(self,series,From,To,time_precision = 's')
+    series = self.ProcessSeriesParameter(series)
+
+    if From > To:
+      tmp = From
+      From = To
+      To = tmp
+
+    if time_precision == 's':
+        factor = 1000000000
+    elif time_precision == 'm':
+        factor = 1000000
+    elif time_precision == 'u':
+        factor = 1000
+    else 
+        return 
+
+    self.query("delete from %s where time > %i and time < %i" %(series,From*factor,To*factor) )
+    
+
+  def Save(self,series,DataFrame,time_precision = 's'):
+    series = self.ProcessSeriesParameter(series)
+
     #Series name
     #series = FeedId + "/raw_data" 
 
@@ -159,7 +204,7 @@ class InfluxDBlayer(InfluxDBClient):
     #Save each row
     for timestamp in DataFrame.index:
       column = ["time"]
-      data = [int(timestamp*1000)]
+      data = [int(timestamp)]
 
 
       #Iterate each value and remove NANs
@@ -181,11 +226,11 @@ class InfluxDBlayer(InfluxDBClient):
 
       fdata = [{
           "points": [data],
-          "name": Series,
+          "name": series,
           "columns": column
           }]
 
-      self.write_points_with_precision(fdata,"m")
+      self.write_points_with_precision(fdata,time_precision)
 
       rows += 1
 
