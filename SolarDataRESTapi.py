@@ -1,5 +1,5 @@
 #!/bin/python
-from flask import Flask, jsonify, abort,request
+from flask import Flask, jsonify, abort,request,Response
 import InfluxDBInterface
 import json
 from elasticsearch import Elasticsearch
@@ -62,7 +62,7 @@ def getMetadataSites(keys):
 
     print keys
 
-    index = ["Country","County","Multiciparty","Administrative_area","Citypart"]
+    index = ["Country","County","Municipality","Administrative_area","Citypart"]
 
     query = []
 
@@ -99,7 +99,7 @@ def getMetadataSites(keys):
 def getProductionDataSites(keys):
     print keys
 
-    index = ["Country","County","Multiciparty","Administrative_area","Citypart"]
+    index = ["Country","County","Municipality","Administrative_area","Citypart"]
 
     query = []
 
@@ -145,7 +145,7 @@ def getProductionDataSites(keys):
         siteUUID = hit["_id"]
         q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
         print q
-        data = ProductionDB.query(q)        
+        data = ProductionDB.query(q,'m')        
         #data[0]['columns'][2]="Power"
         #data[0]['columns'][3]="Energy_counter"
 
@@ -202,9 +202,9 @@ def get_site_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return json.dumps(getMetadataSites(parts[:-1]))
+        return Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return json.dumps(getProductionDataSites(parts[:-1]))
+        return Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
     elif parts[-1] == "_geography":
         return "Not implemented"
         
@@ -221,9 +221,9 @@ def get_area_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return json.dumps(getMetadataAreas(parts[:-1]))
+        return Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_geography":
-        return json.dumps(getGeographyData(parts[:-1]))
+        return Response(json.dumps(getGeographyData(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
         return "Not implemented"
 
