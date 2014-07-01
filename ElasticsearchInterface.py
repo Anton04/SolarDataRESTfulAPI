@@ -17,20 +17,22 @@ class ESinterface(Elasticsearch):
       except:
         pass
       
+    #Iterate through all rows.  
     for item in df.index:
     
-    column = []
-    data = []
-    docs = {}
-    
-    if type(item) != type(""):
-        #print "is nan"
-        continue
-        
-    print "Processing meta for site: " + item
-    
-    for Key in df.keys():
-        
+      column = []
+      data = []
+      docs = {}
+      
+      if type(item) != type(""):
+          #print "is nan"
+          continue
+          
+      print "Processing meta for site: " + item
+      
+      #Iterate through all properties
+      for Key in df.keys():
+          
         Value = df.loc[item][Key]
         
         #Skip if value is missing
@@ -48,14 +50,14 @@ class ESinterface(Elasticsearch):
             data.append(Value)
             
             print "Added time key"
-    
-    #Send data to elastic search
-    res = self.index(index=index, doc_type=doc_type, id=item, body=docs)
-    if (res['created']):
-        print "Created elasticsearch entry"
-    else:
-        print "Updated elasticsearch entry"
-
-#Update indices 
-es.indices.refresh(index="solar-sites-index")
+      
+      #Send data to elastic search
+      res = self.index(index=index, doc_type=doc_type, id=item, body=docs)
+      if (res['created']):
+          print "Created elasticsearch entry"
+      else:
+          print "Updated elasticsearch entry"
   
+  #Update indices 
+    self.indices.refresh(index=index)
+    
