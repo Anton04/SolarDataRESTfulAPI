@@ -2,7 +2,8 @@
 from flask import Flask, jsonify, abort,request,Response
 import InfluxDBInterface
 import json
-from elasticsearch import Elasticsearch
+#from elasticsearch import Elasticsearch
+from ElasticsearchInterface import ESinterface
 import os
 
 app = Flask(__name__)
@@ -56,6 +57,78 @@ def getGeographyData(keys):
             result.append(data)
        	   
     return result
+def getMetadataAreas(keys):
+    print keys
+    
+    index = ["Country","County","Municipality","Administrative_area","Citypart"]
+    
+    query = []
+    
+    l = len(keys)
+        
+    if l == 0:
+        totalquery = {"size":1000,"query": {"match_all": {} }}
+    
+    else:
+
+        for f in range(0,l):
+            query.append({"match" : {index[f]:keys[f]} })
+    
+
+        totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
+        
+
+    res = es.search(index="solar-area-index",doc_type="meta-data", body=totalquery)
+
+    
+    print("Got %d Hits:" % res['hits']['total'])
+    
+    #print res
+    #print "  "
+        
+    #Make a nicer list
+    reply = []
+    for hit in res['hits']['hits']:
+
+        properties = hit["_source"]
+
+	site = {hit["_id"]:{"_meta":properties}}	
+
+        reply.append(site)
+        #print("Added: %(Owner)s: %(Address)s" % hit["_source"])
+
+	#Get the search parameters fore this site. 
+        params = json.loads(hit["_source"]["query"])
+
+	print params	
+
+        #Add dynamic properties. 	
+	df = es.GetHitsMatchingPropDict(index="solar-sites-index",doc_type="meta-data",dict=params)
+
+	#If no hits
+	if df.shape[1] == 0:
+	  properties["Pmax_monitored"] = 0
+
+	#If N hits 
+	else:
+
+  	  try:
+
+            #Calculate nSites
+            nSites = df.shape[1]
+            properties["nSites_monitored"] = nSites
+  
+            #Calculate Pmax.
+            Pmax = df.loc["Pmax"].sum()
+	    properties["Pmax_monitored"] = Pmax
+	    #site[hit["_id"]]["Pmax"] = Pmax
+
+	  except Exception,e: 
+            print str(e)
+	
+	
+    
+    return {"areas":reply, "_total_hits":res['hits']['total']}
 
 #Return the metadata limided by the keys sent. 
 def getMetadataSites(keys):
@@ -277,8 +350,8 @@ if __name__ == '__main__':
     topics = DataLink.listdataseries()
 
 
-    es = Elasticsearch()    
-    
+    #es = Elasticsearch()    
+    es = ESinterface()
 
     #app.run(host = "0.0.0.0")
     app.run(debug = True)
