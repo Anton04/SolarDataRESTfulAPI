@@ -10,9 +10,21 @@ class InfluxDBlayer(InfluxDBClient):
     #Handle indexing instead of name
     if type(series) == int:
         Series = self.ListSeries()
-        Series.sort()
+        #Series.sort()
         series = Series[series]
         print "Series %s selected" % series
+
+    #If its a list process each element and concat to commma separated string 
+    elif type(series) == list:
+ 	combined = ""
+        for part in series:
+            
+            #Recursive call
+            ppart = self.ProcessSeriesParameter(part)
+    	
+            combined += ppart + ", "
+
+        return combined[:-2]
 
     return series
 
@@ -22,7 +34,7 @@ class InfluxDBlayer(InfluxDBClient):
         for part in properties:
             combined += part + ", "
 
-        properties = combined[:-2]
+        return combined[:-2]
 
     return properties
 
@@ -39,6 +51,9 @@ class InfluxDBlayer(InfluxDBClient):
 
     for series in res:
        ret.append(series["name"])
+
+    ret.sort()
+
     return ret
 
   def GetProperties(self,series):
@@ -56,25 +71,72 @@ class InfluxDBlayer(InfluxDBClient):
     if timestamp == None:
         timestamp = self.GetFirstTimestamp(series,properties,'m')/1000.0
 
-    properties = self.ProcessPropParameter(properties)
+    pproperties = self.ProcessPropParameter(properties)
 
-    qstring = "select %s from %s where time > %i order asc limit %i" % (properties,series,int(timestamp*1000000000),limit)
+    qstring = "select %s from %s where time > %i order asc limit %i" % (pproperties,series,int(timestamp*1000000000),limit)
     res = self.query(qstring,time_precision)
 
-    return self.ResultToDataframe(res)
+    #print res
+
+    df =  self.ResultToDataframe(res)
+
+    #print df 
+
+    if df.shape[0] > limit:
+      df = df.iloc[:limit]
+
+    #print "*"*20
+    #print df
+
+    if type(df) == pd.core.frame.DataFrame:
+    	df.series = series
+    	df.properties = properties 
+
+    return df
+
+
+  def GetNextNRows(self,df,N=100,time_precision='s'):
+
+    #Get the last timestamp
+    lasttime = pd.Series(df.index).max()   
+
+    return self.GetDataAfterTime(df.series,df.properties,lasttime,N,time_precision)
 
   def ResultToDataframe(self,result):
     if result == []:
       return None
 
-    df = pd.read_json(json.dumps(result[0]["points"]))
-    df.columns = result[0]["columns"]
-    df.index = df["time"]
+    ret = []
 
-    df = df.drop(["time","sequence_number"],1)
-    df = df.reset_index().groupby(df.index.names).first()
+    for res in result:	
 
-    return df
+      df = pd.read_json(json.dumps(res["points"]))
+      df.columns = res["columns"]
+      df.index = df["time"]
+
+      df = df.drop(["time","sequence_number"],1)
+      df = df.reset_index().groupby(df.index.names).first()
+
+      df.series = res["name"]
+
+      ret.append(df)
+
+    if len(ret) == 1:
+        return ret[0]
+
+    #Induvidualiase properties
+    for df in ret:
+	df.columns = df.series + "/" + df.columns
+
+    #Merge all dataframes
+    
+    df_ret = ret[0]
+
+    for df in ret[1:]:
+        df_ret = df_ret.join(df, how='outer')
+
+    return df_ret
+
 
   def GetDataPeriod(self,series,properties,start,lenght=60*60*24*7,limit=1000,time_precision='s'):
     series = self.ProcessSeriesParameter(series)
@@ -128,19 +190,31 @@ class InfluxDBlayer(InfluxDBClient):
     series = self.ProcessSeriesParameter(series)
     properties = self.ProcessPropParameter(properties)
 
-    result = self.query('select %s from \"%s\" order desc limit 1;' % (properties,series), time_precision)
+    result = self.query('select %s from %s order desc limit 1;' % (properties,series), time_precision)
 
     #print result
 
+    timestamp = 0 
+
     try:
-      ret = result[0]["points"][0][2:]
-      time = result[0]["points"][0][0]
+      #If serveral results return the last one. 
+      for item in result:
+        t_prop = item["points"][0][2:]
+        t_timestamp = item["points"][0][0]
+
+        if t_timestamp > timestamp:
+		timestamp = t_timestamp
+		ret = t_prop
+
+
+      #ret = result[0]["points"][0][2:]
+      #time = result[0]["points"][0][0]
       if len(ret) == 1:
-          return (time,ret[0])
+          return (timestamp,ret[0])
       elif len(ret) == 0:
           return (None,None)
       else:
-          return (time,ret)
+          return (timestamp,ret)
     except:
       return (None,None)
 
@@ -148,19 +222,28 @@ class InfluxDBlayer(InfluxDBClient):
     series = self.ProcessSeriesParameter(series)
     properties = self.ProcessPropParameter(properties)
 
-    result = self.query('select %s from \"%s\" order asc limit 1;' % (properties,series), time_precision)
+    result = self.query('select %s from %s order asc limit 1;' % (properties,series), time_precision)
 
     #print result
 
+    timestamp = 9999999999999999
+
     try:
-      ret = result[0]["points"][0][2:]
-      time = result[0]["points"][0][0]
+      #If serveral results return the first one. 
+      for item in result:
+        t_prop = item["points"][0][2:]
+        t_timestamp = item["points"][0][0]
+
+        if t_timestamp < timestamp:
+                timestamp = t_timestamp
+                ret = t_prop
+   
       if len(ret) == 1:
-          return (time,ret[0])
+          return (timestamp,ret[0])
       elif len(ret) == 0:
           return (None,None)
       else:
-          return (time,ret)
+          return (timestamp,ret)
     except:
       return (None,None)
 
@@ -173,7 +256,7 @@ class InfluxDBlayer(InfluxDBClient):
     self.ClearPeriod(series,From,To,time_precision)
     self.Save(series,DataFrame,time_precision)
 
-  def ClearPeriod(self,series,From,To,time_precision = 's')
+  def ClearPeriod(self,series,From,To,time_precision = 's'):
     series = self.ProcessSeriesParameter(series)
 
     if From > To:
@@ -187,7 +270,7 @@ class InfluxDBlayer(InfluxDBClient):
         factor = 1000000
     elif time_precision == 'u':
         factor = 1000
-    else 
+    else: 
         return 
 
     self.query("delete from %s where time > %i and time < %i" %(series,From*factor,To*factor) )
@@ -214,6 +297,59 @@ class InfluxDBlayer(InfluxDBClient):
         #print timestamp,key
  
         if pd.isnull(value):
+          continue
+
+        #Add key
+        column.append(key)
+        data.append(value)
+
+      #If there where only nan on this row continue to next row. 
+      if len(column) == 1:
+        continue
+
+      fdata = [{
+          "points": [data],
+          "name": series,
+          "columns": column
+          }]
+
+      self.write_points_with_precision(fdata,time_precision)
+
+      rows += 1
+
+    return rows
+
+
+  def SaveCompressed(self,series,DataFrame,time_precision = 's'):
+    series = self.ProcessSeriesParameter(series)
+
+    #Series name
+    #series = FeedId + "/raw_data" 
+
+    rows = 0
+
+    LastValues = {}
+
+    #Save each row
+    for timestamp in DataFrame.index:
+      column = ["time"]
+      data = [int(timestamp)]
+
+
+      #Iterate each value and remove NANs
+      for key in DataFrame.columns:
+        value = DataFrame.loc[timestamp,key]
+        #print value 
+        #print timestamp,key
+
+        if pd.isnull(value):
+          continue
+
+	if not key in LastValues:
+	  LastValues[key] = value
+        elif LastValues[key] != value
+          LastValues[key] = value
+	else
           continue
 
         #Add key
@@ -270,7 +406,7 @@ class InfluxDBInterface():
 
   def GetLastTimeStamp(self,topic):
 
-    result = self.GetDatabaseFromTopicPath(topic).query('select time from \"%s\" order desc limit 1;' % topic, time_precision='m')
+    result = self.GetDatabaseFromTopicPath(topic).query('select time from %s order desc limit 1;' % topic, time_precision='m')
 
     try:
       return float(result[0]["points"][0][0])/1000.0
@@ -279,7 +415,7 @@ class InfluxDBInterface():
 
   def GetLastTimeStamp2(self,database,series):
 
-    result = self.databases[database].query('select time from \"%s\" order desc limit 1;' % series, time_precision='m')
+    result = self.databases[database].query('select time from %s order desc limit 1;' % series, time_precision='m')
 
     try:
       return float(result[0]["points"][0][0])/1000.0                
@@ -288,7 +424,7 @@ class InfluxDBInterface():
 
   def GetLastValue3(self,database,series,property):
   
-    result = self.databases[database].query('select %s from \"%s\" order desc limit 1;' % (property,series), time_precision='m')
+    result = self.databases[database].query('select %s from %s order desc limit 1;' % (property,series), time_precision='m')
     
     #print result
     
@@ -305,7 +441,7 @@ class InfluxDBInterface():
 
   def GetLastTimeStamp3(self,database,series,property):
 
-    result = self.databases[database].query('select %s from \"%s\" order desc limit 1;' % (property,series), time_precision='m')
+    result = self.databases[database].query('select %s from %s order desc limit 1;' % (property,series), time_precision='m')
 
     #print result 
 
@@ -316,7 +452,7 @@ class InfluxDBInterface():
 
   def GetLastValue3(self,database,series,property):
 
-    result = self.databases[database].query('select %s from \"%s\" order desc limit 1;' % (property,series), time_precision='m')
+    result = self.databases[database].query('select %s from %s order desc limit 1;' % (property,series), time_precision='m')
 
     #print result
 
