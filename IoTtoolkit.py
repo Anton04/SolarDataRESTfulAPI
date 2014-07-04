@@ -218,7 +218,7 @@ class Feed():
     Values = pd.DataFrame(index = ["Timestamp","Value"])
 
     #Loop through all. 
-    for (Name,Properties) in self.Series.iteritems():
+    for (Name,Properties) in self.DataStreams.iteritems():
       Database = Properties["Database"]
       Serie = Properties["Serie"]
       Property = Properties["Property"]
