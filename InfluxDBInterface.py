@@ -241,8 +241,8 @@ class InfluxDBlayer(InfluxDBClient):
         t_timestamp = item["points"][0][0]
 
         if t_timestamp > timestamp:
-    timestamp = t_timestamp
-    ret = t_prop
+          timestamp = t_timestamp
+          ret = t_prop
 
 
       #ret = result[0]["points"][0][2:]
