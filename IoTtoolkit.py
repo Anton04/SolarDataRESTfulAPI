@@ -4,6 +4,7 @@ import json
 import mosquitto 
 from InfluxDBInterface import InfluxDBInterface
 import pandas as pd
+import uuid
 
 #Abstraction layer for accessing long time storage
 class LTSInterface():
@@ -111,10 +112,64 @@ class Feed():
     self.Buffer = None
 
   def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None, Type = None):
-    pass
+    if Name == None:
+      Name = uuid.uuid1()
+
+    self.DataStreams[Name] = pd.Series([Database,Series,Property,Timeout,Type],index=self.DataStreams.index)
+
+    return self.DataStreams[Name]    
+
+  def RemoveStream(self,Id = None):
+    if Id == None:
+      return False
+
+    try:
+
+      if type(Id) == str:
+        Stream = self.DataStreams[Id]
+        self.DataStreams = self.DataStreams.drop(["Test"],axis=1)
+      elif type(Id) == int:
+        Stream = self.DataStreams[self.DataStreams.columns[Id]]
+        self.DataStreams = self.DataStreams.drop(self.DataStreams.columns[Id],axis=1)
+    except KeyError:
+      return False
+
+    return Stream
+
+  def UpdateSourceDirectory(self):
+
+    SourceDict = {}
+ 
+    #Sort dbs and series.
+    for Stream in self.DataStreams.iteritems():
+      Database = Stream[1]["Database"]
+      Series = Stream[1]["Series"]
+      Property = Stream[1]["Properties"]
+
+      Key = (Database,Series)
+
+      if not Key in SourceDict:
+        SourceDict[Key] = []
+
+      SourceDict[Key].append(Property)
+
+    self.SourceDict = SourceDict
+
+    return SourceDict
+
+  def LoadBuffer(self,Start,Length):
+    Sources = self.UpdateSourceDirectory()
+
+    #Load each source into a frame. 
+    Frames = []
+
+    for (Database,Series) in Sources:
+      pass
+    
     
 
-    
+
+
 #Class implementing a stream.    
 class Stream:
   def __init__(self,Defenition,Feed):
