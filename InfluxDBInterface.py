@@ -248,11 +248,11 @@ class InfluxDBlayer(InfluxDBClient):
       #ret = result[0]["points"][0][2:]
       #time = result[0]["points"][0][0]
       if len(ret) == 1:
-          return (timestamp,ret[0])
+          return (timestamp/1000.0,ret[0])
       elif len(ret) == 0:
           return (None,None)
       else:
-          return (timestamp,ret)
+          return (timestamp/1000.0,ret)
     except:
       return (None,None)
 
