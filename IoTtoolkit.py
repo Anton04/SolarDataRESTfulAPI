@@ -3,6 +3,7 @@
 import json
 import mosquitto 
 from InfluxDBInterface import InfluxDBInterface
+import pandas as pd
 
 #Abstraction layer for accessing long time storage
 class LTSInterface():
@@ -100,33 +101,18 @@ class Universe:
             
     
 #Class implementing a feed     
-class Feed:
-  def __init__(self,Defenition,Universe = None):
+class Feed():
+  def __init__(self,Universe = None):
+
     self.Universe = Universe
-    Streams = []
-    self.ID = Defenition["FEED ID"]
-    self.Name = Defenition["Name"]
-    self.Alias = Defenition["ALIAS"]
-    self.Tags = Defenition["TAGS"]
 
-    StreamList = Defenition["Streams"]
-    self.Streams = []
+    self.DataStreams = pd.DataFrame(index = ["Database","Series","Properties","Timeout","Type"])
+    self.BufferDescriptor = pd.DataFrame(index = ["Start","End","IndexPointer","Value"])
+    self.Buffer = None
 
-    #Add all streams
-    for StreamDsc in StreamList:
-      self.Streams.append(Stream(StreamDsc,self))
-
-  def stream_function_SUM_ALL_LOCAL(key):
-
-    Value = 0
-
-    for Stream in Streams:
-      #Skip stream if not matching key
-      if Stream.ID.find(key) == -1:
-        continue
-      Value += Stream.GetLastValidValue()  
-
-    return Value
+  def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None, Type = None):
+    pass
+    
 
     
 #Class implementing a stream.    
