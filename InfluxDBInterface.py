@@ -347,9 +347,9 @@ class InfluxDBlayer(InfluxDBClient):
 
 	if not key in LastValues:
 	  LastValues[key] = value
-        elif LastValues[key] != value
+        elif LastValues[key] != value:
           LastValues[key] = value
-	else
+	else:
           continue
 
         #Add key
