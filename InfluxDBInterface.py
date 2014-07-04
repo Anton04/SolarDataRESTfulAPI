@@ -228,9 +228,9 @@ class InfluxDBlayer(InfluxDBClient):
     series = self.ProcessSeriesParameter(series)
     properties = self.ProcessPropParameter(properties)
 
-    query = 'select %s from %s where time < %i limit 1;' % (properties,series,int(At * 1000000000))
+    query = "select %s from %s where time < %i limit 1;" % (properties,series,int(At * 1000000000))
 
-    print query 
+    #print query 
 
     result = self.query(query, time_precision)
 
