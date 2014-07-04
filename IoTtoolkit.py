@@ -107,15 +107,17 @@ class Feed():
 
     self.Universe = Universe
 
-    self.DataStreams = pd.DataFrame(index = ["Database","Series","Properties","Timeout","Type"])
-    self.BufferDescriptor = pd.DataFrame(index = ["Start","End","IndexPointer","Value"])
+    self.DataStreams = pd.DataFrame(index = ["Database","Serie","Property","Timeout","TOMarker","Type","Compressed"])
+    self.Pointer = None
     self.Buffer = None
 
-  def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None, Type = None):
+  def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = False):
     if Name == None:
       Name = uuid.uuid1()
 
-    self.DataStreams[Name] = pd.Series([Database,Series,Property,Timeout,Type],index=self.DataStreams.index)
+    self.DataStreams[Name] = pd.Series([Database,Series,Property,Timeout,TOMarker,Type,Compressed],index=self.DataStreams.index)
+
+    self.UpdateSourceAndNameDirectories()
 
     return self.DataStreams[Name]    
 
@@ -127,25 +129,30 @@ class Feed():
 
       if type(Id) == str:
         Stream = self.DataStreams[Id]
-        self.DataStreams = self.DataStreams.drop(["Test"],axis=1)
+        self.DataStreams = self.DataStreams.drop([Id],axis=1)
       elif type(Id) == int:
         Stream = self.DataStreams[self.DataStreams.columns[Id]]
         self.DataStreams = self.DataStreams.drop(self.DataStreams.columns[Id],axis=1)
     except KeyError:
       return False
 
+    self.UpdateSourceAndNameDirectories()
+
     return Stream
 
-  def UpdateSourceDirectory(self):
+  def UpdateSourceAndNameDirectories(self):
 
     SourceDict = {}
+    NameDict = {}
  
     #Sort dbs and series.
     for Stream in self.DataStreams.iteritems():
       Database = Stream[1]["Database"]
-      Series = Stream[1]["Series"]
-      Property = Stream[1]["Properties"]
+      Series = Stream[1]["Serie"]
+      Property = Stream[1]["Property"]
+      Name = Stream[0]
 
+      #Sources
       Key = (Database,Series)
 
       if not Key in SourceDict:
@@ -153,21 +160,98 @@ class Feed():
 
       SourceDict[Key].append(Property)
 
+      #Names
+      Key2 = (Database,Series,Property)
+
+      if not Key2 in NameDict:
+        NameDict[Key2] = []
+
+      NameDict[Key2].append(Name)
+
+    #Save
     self.SourceDict = SourceDict
+    self.NameDict = NameDict
 
-    return SourceDict
+    return (SourceDict,NameDict)
 
-  def LoadBuffer(self,Start,Length):
-    Sources = self.UpdateSourceDirectory()
+
+  def LoadBuffer(self,Start=None,Length=10,Reverse = False):
+
+    Sources = self.SourceDict.copy()
+    Names = self.NameDict.copy() 
 
     #Load each source into a frame. 
     Frames = []
 
-    for (Database,Series) in Sources:
-      pass
-    
-    
+    for Key in Sources:
+      (Database,Series) = Key
+      if Reverse:
+        Res = Database.GetDataBeforeTime(Series,Sources[Key],Start,Length)
+      else:
+        Res = Database.GetDataAfterTime(Series,Sources[Key],Start,Length)
 
+      if type(Res) != pd.DataFrame:
+        continue
+
+      #Replace properties with names
+      NameList = []
+
+      for Property in Res.columns:
+        NameList.append(Names[((Database,Series,Property))].pop())
+
+      Res.columns = NameList
+
+      Frames.append(Res)
+
+    #Join all frames
+    MainFrame = Frames[0]
+
+    for Frame in Frames[1:]:
+        MainFrame = MainFrame.join(Frame, how='outer')
+
+    return MainFrame.iloc[:Length]
+
+   
+
+  def GetPointsAround(self,TimeStamp=None):
+
+    Values = pd.DataFrame(index = ["Timestamp","Value"])
+
+    #Loop through all. 
+    for (Name,Properties) in self.Series.iteritems():
+      Database = Properties["Database"]
+      Serie = Properties["Serie"]
+      Property = Properties["Property"]
+
+      (StreamTime,StreamValue) = Database.GetPrecedingValue(Serie,Property,Time)
+
+      if StreamTime == None:
+        (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,Time)
+
+      Values[Name] = [StreamTime,StreamValue]
+
+    return PointerValues
+
+  def SetPointer(self,Timestamp = 0):
+
+    df = self.GetPointsAround()
+
+    StartsAt = df["Timestamp"].min()
+
+    #If pointer is set ahead of feedstart adjust
+    if StartsAt > TimeStamp:
+      self.Pointer = StartsAt
+    else:
+      self.Pointer = TimeStamp
+
+    #Store
+    self.PointerValues = df
+
+    return self.Pointer
+
+          
+
+     
 
 
 #Class implementing a stream.    

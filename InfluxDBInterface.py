@@ -62,6 +62,9 @@ class InfluxDBlayer(InfluxDBClient):
        return []
     return res[0]["columns"][2:]
 
+
+
+
   def GetDataAfterTime(self,series,properties="*",timestamp=None,limit=10,time_precision='s'):
     
     #Handle indexing instead of name
@@ -93,6 +96,8 @@ class InfluxDBlayer(InfluxDBClient):
     	df.properties = properties 
 
     return df
+
+
 
 
   def GetNextNRows(self,df,N=100,time_precision='s'):
@@ -205,6 +210,39 @@ class InfluxDBlayer(InfluxDBClient):
         if t_timestamp > timestamp:
 		timestamp = t_timestamp
 		ret = t_prop
+
+
+      #ret = result[0]["points"][0][2:]
+      #time = result[0]["points"][0][0]
+      if len(ret) == 1:
+          return (timestamp,ret[0])
+      elif len(ret) == 0:
+          return (None,None)
+      else:
+          return (timestamp,ret)
+    except:
+      return (None,None)
+
+  def GetPrecedingValue(self,At):
+
+    series = self.ProcessSeriesParameter(series)
+    properties = self.ProcessPropParameter(properties)
+
+    result = self.query('select %s from %s where time > %i limit 1;' % (properties,series,int(At * 1000000000), time_precision)
+
+    #print result
+
+    timestamp = 0 
+
+    try:
+      #If serveral results return the last one. 
+      for item in result:
+        t_prop = item["points"][0][2:]
+        t_timestamp = item["points"][0][0]
+
+        if t_timestamp > timestamp:
+    timestamp = t_timestamp
+    ret = t_prop
 
 
       #ret = result[0]["points"][0][2:]
