@@ -223,7 +223,7 @@ class InfluxDBlayer(InfluxDBClient):
     except:
       return (None,None)
 
-  def GetPrecedingValue(self,At):
+  def GetPrecedingValue(self,At,series,properties="*",time_precision='m'):
 
     series = self.ProcessSeriesParameter(series)
     properties = self.ProcessPropParameter(properties)
