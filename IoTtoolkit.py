@@ -213,7 +213,7 @@ class Feed():
 
    
 
-  def GetPointsAround(self,TimeStamp=None):
+  def GetPointsPreceeding(self,TimeStamp=None):
 
     Values = pd.DataFrame(index = ["Timestamp","Value"])
 
@@ -225,8 +225,8 @@ class Feed():
 
       (StreamTime,StreamValue) = Database.GetPrecedingValue(Serie,Property,TimeStamp)
 
-      if StreamTime == None:
-        (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,Time)
+      #if StreamTime == None:
+      #  (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,TimeStamp)
 
       Values[Name] = [StreamTime,StreamValue]
 
@@ -234,7 +234,7 @@ class Feed():
 
   def SetPointer(self,Timestamp = 0):
 
-    df = self.GetPointsAround()
+    df = self.GetPointsPreceeding()
 
     StartsAt = df["Timestamp"].min()
 
