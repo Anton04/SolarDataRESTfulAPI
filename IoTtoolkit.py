@@ -243,7 +243,7 @@ class Feed():
       Serie = Properties["Serie"]
       Property = Properties["Property"]
 
-      Timestamp = GetFirstTimestamp(Serie,Property)
+      Timestamp = Database.GetFirstTimestamp(Serie,Property)
 
       if Timestamp < FirstTimestamp:
         FirstTimestamp = Timestamp
