@@ -184,7 +184,7 @@ class Feed():
     Names = self.NameDict.copy() 
 
     for Key in self.NameDict:
-      Names[Key] = self.NameDict[Key].copy()
+      Names[Key] = self.NameDict[Key][:]
 
 
     #Load each source into a frame. 
