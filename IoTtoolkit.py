@@ -266,7 +266,7 @@ class Feed():
     if Timestamp == 0:
       Timestamp = self.GetFeedStart()
 
-    df =  
+    df = self.GetPointsPreceeding(Timestamp)
 
     #Align columns with the stream decriptor. 
     df = df.reindex_axis(self.DataStreams.columns, axis=1)
@@ -294,9 +294,6 @@ class Feed():
     Pointer = df.index[-1]
 
     #Check if we are at the end of the feed. 
-    print self.Pointer
-    print Pointer
-    
     if self.Pointer == Pointer:
       return None
 
