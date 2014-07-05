@@ -293,6 +293,12 @@ class Feed():
     #Calculate new pointer data. 
     Pointer = df.index[-1]
 
+    #Check if we are at the end of the feed. 
+    print self.Pointer
+    print Pointer
+    if self.Pointer == Pointer:
+      return None
+
     #Calculate new pointer values fill in missing starts and decompress.
     Values = pd.DataFrame(index = ["Timestamp","Value"])
 
@@ -308,9 +314,7 @@ class Feed():
       if self.DataStreams[Name]["Compressed"] == True:
         df.ffill(inplace=True)
     
-    #Check if we are at the end of the feed. 
-    if self.Pointer == Pointer:
-      return None
+
 
     #Store
     self.Pointer = Pointer
