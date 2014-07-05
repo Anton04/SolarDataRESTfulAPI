@@ -248,7 +248,7 @@ class Feed():
       if Timestamp < FirstTimestamp:
         FirstTimestamp = Timestamp
       
-    return Timestamp
+    return Timestamp /1000.0
 
 
   def SetPointer(self,Timestamp = 0):
