@@ -274,7 +274,7 @@ class Feed():
     return self.Pointer
 
   #Returns a buffer from where the pointer was set and updates the pointer. 
-  def GetBuffer(self,Length):
+  def GetBuffer(self,Length=10):
     #Load raw buffer
     df = self.LoadBuffer(self,self.Pointer,Length)
 
