@@ -231,7 +231,7 @@ class Feed():
 
       Values[Name] = [StreamTime,StreamValue]
 
-    return PointerValues
+    return Values
 
   def SetPointer(self,Timestamp = 0):
 
