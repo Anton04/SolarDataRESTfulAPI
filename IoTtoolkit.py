@@ -265,6 +265,9 @@ class Feed():
 
     df = self.GetPointsPreceeding(Timestamp)
 
+    #Align columns with the stream decriptor. 
+    df.reindex_axis(self.DataStreams.columns, axis=1)
+
     StartsAt = df.loc["Timestamp"].min()
 
     #Store
@@ -276,10 +279,10 @@ class Feed():
   #Returns a buffer from where the pointer was set and updates the pointer. 
   def GetBuffer(self,Length=10):
     #Load raw buffer
-    df = self.LoadBuffer(self,self.Pointer,Length)
+    df = self.LoadBuffer(self.Pointer,Length)
 
-    #Align columns. 
-    df.reindex_axis(feed.DataStreams.columns, axis=1)
+    #Align columns with the stream decriptor
+    df.reindex_axis(self.DataStreams.columns, axis=1)
 
     #Update first row 
     df.iloc[0] = self.PointerValues
