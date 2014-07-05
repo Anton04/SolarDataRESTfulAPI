@@ -163,9 +163,10 @@ class Feed():
       #Names
       Key2 = (Database,Series,Property)
 
-      if not Key2 in NameDict:
+      if not NameDict.has_key(Key2):
         NameDict[Key2] = []
 
+      print "Appending " + Name
       NameDict[Key2].append(Name)
 
     #Save
@@ -271,10 +272,16 @@ class Feed():
     #Load raw buffer
     df = self.LoadBuffer(self,self.Pointer,Length)
 
+    #Align columns. 
+    df.reindex_axis(feed.DataStreams.columns, axis=1)
+
+    #Update first row 
+    df.iloc[0] = self.PointerValues
+
     #Calculate new pointer data. 
     Pointer = df.index[-1]
 
-    #Calculate new pointer values.
+    #Calculate new pointer values fill in missing starts and decompress.
     Values = pd.DataFrame(index = ["Timestamp","Value"])
 
     for (Name,Column) in df.iteritems():
@@ -283,11 +290,17 @@ class Feed():
       StreamValue = Stream.values[-1]
 
       Values[Name] = [StreamTime,StreamValue]
+
+      if self.DataStreams["Compressed"] == True:
+        df.ffill()
      
     #Store
     self.Pointer = Pointer
     self.PointerValues = Values
 
+
+
+    return df
 
 #Class implementing a stream.    
 class Stream:
