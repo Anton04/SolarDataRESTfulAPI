@@ -76,12 +76,18 @@ class InfluxDBlayer(InfluxDBClient):
 
     pproperties = self.ProcessPropParameter(properties)
 
-    qstring = "select %s from %s where time > %i order asc limit %i" % (pproperties,series,int(timestamp*1000000000),limit)
+    #DUE to a bug in influx db we mush query all properties and then select the ones we want. 
+    qstring = "select %s from %s where time > %i order asc limit %i" % ("*",series,int(timestamp*1000000000),limit)
     res = self.query(qstring,time_precision)
 
     #print res
 
     df =  self.ResultToDataframe(res)
+
+    if type(properties) == list:
+      df = df[properties]
+    elif properties != "*":
+      df = df[[properties]]
 
     #Return empty 
     if type(df) != pd.DataFrame:
