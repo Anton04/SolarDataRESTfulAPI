@@ -216,7 +216,10 @@ class Feed():
     for Frame in Frames[1:]:
         MainFrame = MainFrame.join(Frame, how='outer')
 
-    return MainFrame.iloc[:Length]
+    if MainFrame.shape[0] > Length:
+      MainFrame = MainFrame.iloc[:Length]
+
+    return MainFrame
 
    
 
