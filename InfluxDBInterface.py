@@ -85,6 +85,7 @@ class InfluxDBlayer(InfluxDBClient):
     df =  self.ResultToDataframe(res)
 
     if type(properties) == list:
+      print df.columns
       df = df[properties]
     elif properties != "*":
       df = df[[properties]]
