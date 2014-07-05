@@ -235,7 +235,7 @@ class Feed():
 
   def SetPointer(self,Timestamp = 0):
 
-    df = self.GetPointsPreceeding()
+    df = self.GetPointsPreceeding(Timestamp)
 
     StartsAt = df["Timestamp"].min()
 
