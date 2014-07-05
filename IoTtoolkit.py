@@ -233,7 +233,28 @@ class Feed():
 
     return Values
 
+  def GetFeedStart(self): 
+
+    FirstTimestamp = 9999999999999
+
+    #Loop through all and look for the stream that starts first. 
+    for (Name,Properties) in self.DataStreams.iteritems():
+      Database = Properties["Database"]
+      Serie = Properties["Serie"]
+      Property = Properties["Property"]
+
+      Timestamp = GetFirstTimestamp(Serie,Property)
+
+      if Timestamp < FirstTimestamp:
+        FirstTimestamp = Timestamp
+      
+    return Timestamp
+
+
   def SetPointer(self,Timestamp = 0):
+
+    if Timestamp == 0:
+      Timestamp = self.GetFeedStart()
 
     df = self.GetPointsPreceeding(Timestamp)
 
