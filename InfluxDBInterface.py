@@ -16,7 +16,7 @@ class InfluxDBlayer(InfluxDBClient):
 
     #If its a list process each element and concat to commma separated string 
     elif type(series) == list:
- 	      combined = ""
+        combined = ""
         for part in series:
             
             #Recursive call
