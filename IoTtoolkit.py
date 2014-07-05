@@ -266,7 +266,7 @@ class Feed():
     if Timestamp == 0:
       Timestamp = self.GetFeedStart()
 
-    df = self.GetPointsPreceeding(Timestamp)
+    df =  
 
     #Align columns with the stream decriptor. 
     df = df.reindex_axis(self.DataStreams.columns, axis=1)
@@ -307,7 +307,11 @@ class Feed():
 
       if self.DataStreams[Name]["Compressed"] == True:
         df.ffill(inplace=True)
-     
+    
+    #Check if we are at the end of the feed. 
+    if self.Pointer == Pointer:
+      return None
+
     #Store
     self.Pointer = Pointer
     self.PointerValues = Values
