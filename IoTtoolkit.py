@@ -178,8 +178,14 @@ class Feed():
 
   def LoadBuffer(self,Start=None,Length=10,Reverse = False):
 
-    Sources = self.SourceDict.copy()
+    Sources = self.SourceDict
+
+    #Make a complete copy of names. 
     Names = self.NameDict.copy() 
+
+    for Key in self.NameDict:
+      Names[Key] = self.NameDict[key].copy()
+
 
     #Load each source into a frame. 
     Frames = []
