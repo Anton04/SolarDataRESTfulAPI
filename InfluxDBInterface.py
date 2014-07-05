@@ -85,7 +85,11 @@ class InfluxDBlayer(InfluxDBClient):
     df =  self.ResultToDataframe(res)
 
     if type(properties) == list:
-      print df.columns
+      #Add missing parameters
+      for prop in properties
+        if not prop in df.columns:
+          df[prop] = float("NaN")
+
       df = df[properties]
     elif properties != "*":
       df = df[[properties]]
