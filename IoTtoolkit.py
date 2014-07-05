@@ -296,6 +296,7 @@ class Feed():
     #Check if we are at the end of the feed. 
     print self.Pointer
     print Pointer
+    
     if self.Pointer == Pointer:
       return None
 
