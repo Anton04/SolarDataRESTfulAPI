@@ -269,7 +269,7 @@ class Feed():
     df = self.GetPointsPreceeding(Timestamp)
 
     #Align columns with the stream decriptor. 
-    df.reindex_axis(self.DataStreams.columns, axis=1)
+    df = df.reindex_axis(self.DataStreams.columns, axis=1)
 
     StartsAt = df.loc["Timestamp"].min()
 
@@ -285,7 +285,7 @@ class Feed():
     df = self.LoadBuffer(self.Pointer,Length)
 
     #Align columns with the stream decriptor
-    df.reindex_axis(self.DataStreams.columns, axis=1)
+    df = df.reindex_axis(self.DataStreams.columns, axis=1)
 
     #Update first row 
     df.iloc[0] = self.PointerValues.loc["Value"].values
@@ -303,7 +303,7 @@ class Feed():
 
       Values[Name] = [StreamTime,StreamValue]
 
-      print self.DataStreams[Name]
+      #print self.DataStreams[Name]
 
       if self.DataStreams[Name]["Compressed"] == True:
         df.ffill()
