@@ -285,7 +285,7 @@ class Feed():
     df.reindex_axis(self.DataStreams.columns, axis=1)
 
     #Update first row 
-    df.iloc[0] = self.PointerValues
+    df.iloc[0] = self.PointerValues.loc["Value"].values
 
     #Calculate new pointer data. 
     Pointer = df.index[-1]
