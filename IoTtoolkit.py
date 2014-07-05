@@ -300,6 +300,8 @@ class Feed():
 
       Values[Name] = [StreamTime,StreamValue]
 
+      print self.DataStreams[Name]
+
       if self.DataStreams[Name]["Compressed"] == True:
         df.ffill()
      
