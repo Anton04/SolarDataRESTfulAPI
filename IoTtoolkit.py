@@ -266,9 +266,27 @@ class Feed():
 
     return self.Pointer
 
-          
+  #Returns a buffer from where the pointer was set and updates the pointer. 
+  def GetBuffer(self,Length):
+    #Load raw buffer
+    df = self.LoadBuffer(self,self.Pointer,Length)
 
+    #Calculate new pointer data. 
+    Pointer = df.index[-1]
+
+    #Calculate new pointer values.
+    Values = pd.DataFrame(index = ["Timestamp","Value"])
+
+    for (Name,Column) in df.iteritems():
+      Stream = Column.dropna()
+      StreamTime = Stream.index[-1]
+      StreamValue = Stream.values[-1]
+
+      Values[Name] = [StreamTime,StreamValue]
      
+    #Store
+    self.Pointer = Pointer
+    self.PointerValues = Values
 
 
 #Class implementing a stream.    

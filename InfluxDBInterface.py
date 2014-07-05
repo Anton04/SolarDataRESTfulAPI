@@ -83,8 +83,11 @@ class InfluxDBlayer(InfluxDBClient):
 
     df =  self.ResultToDataframe(res)
 
-    #print df 
+    #Return empty 
+    if type(df) != pd.DataFrame:
+      return pd.DataFrame()
 
+    #Cut lenght  
     if df.shape[0] > limit:
       df = df.iloc[:limit]
 
