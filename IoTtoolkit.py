@@ -166,7 +166,7 @@ class Feed():
       if not NameDict.has_key(Key2):
         NameDict[Key2] = []
 
-      print "Appending " + Name
+      #print "Appending " + Name
       NameDict[Key2].append(Name)
 
     #Save
@@ -306,7 +306,7 @@ class Feed():
       #print self.DataStreams[Name]
 
       if self.DataStreams[Name]["Compressed"] == True:
-        df.ffill()
+        df.ffill(inplace=True)
      
     #Store
     self.Pointer = Pointer
