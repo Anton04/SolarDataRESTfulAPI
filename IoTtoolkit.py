@@ -239,13 +239,8 @@ class Feed():
 
     StartsAt = df.loc["Timestamp"].min()
 
-    #If pointer is set ahead of feedstart adjust
-    if StartsAt > Timestamp:
-      self.Pointer = StartsAt
-    else:
-      self.Pointer = Timestamp
-
     #Store
+    self.Pointer = Timestamp
     self.PointerValues = df
 
     return self.Pointer
