@@ -111,7 +111,7 @@ class Feed():
     self.Pointer = None
     self.Buffer = None
 
-  def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = False):
+  def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
     if Name == None:
       Name = uuid.uuid1()
 
