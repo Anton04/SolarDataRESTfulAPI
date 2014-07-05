@@ -237,7 +237,7 @@ class Feed():
 
     df = self.GetPointsPreceeding(Timestamp)
 
-    StartsAt = df["Timestamp"].min()
+    StartsAt = df.loc["Timestamp"].min()
 
     #If pointer is set ahead of feedstart adjust
     if StartsAt > TimeStamp:
