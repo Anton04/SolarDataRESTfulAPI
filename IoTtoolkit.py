@@ -223,7 +223,8 @@ class Feed():
       Serie = Properties["Serie"]
       Property = Properties["Property"]
 
-      (StreamTime,StreamValue) = Database.GetPrecedingValue(Serie,Property,TimeStamp)
+
+      (StreamTime,StreamValue) = Database.GetPrecedingValue(TimeStamp,Serie,Property)
 
       #if StreamTime == None:
       #  (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,TimeStamp)
