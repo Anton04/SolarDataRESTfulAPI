@@ -140,8 +140,22 @@ class FeedBuffer():
     self.Data = (self.Data.diff()!= 0).replace(False,float("NaN")) * self.Data
 
     #Check with values if first row can be compressed.
-    for (Name,Column) in self.Data.iloc[0].iteritems():
+    FirstRow = self.Data.iloc[0]
 
+    for Name in FirstRow.index:
+      Value =  FirstRow[Name]
+      Timestamp = FirstRow.name
+    
+      #If an original point is on this timestamp leave it.
+      if fb.Values[Name]["Timestamp"] == Timestamp:
+        continue
+        
+      #If its an other value than the last known also save it. 
+      if Value != self.Values[Name]["Value"]:
+        continue
+        
+      #If the same value as the one before remove it. 
+      FirstRow[Name] = float("NaN")
 
     return self.Data
 
