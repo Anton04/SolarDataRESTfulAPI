@@ -99,6 +99,114 @@ class Universe:
   
   def SaveFeedsToFile(self,FileName):
     return
+
+
+class FeedBuffer():
+  def __init__(self,Feed,Position,Size):
+    self.Feed = Feed
+    self.Size = Size
+    self.EOF = False
+    self.Data = None
+
+    #
+    self.Seek(Position)
+
+  def Next(self):
+
+    #Load raw buffer
+    self.Data = self.Feed.LoadBuffer(self.EndPosition,self.Size)
+
+    #Update position
+    self.Position = self.EndPosition
+    self.Values = self.NextValues
+
+    (self.EndPosition,self.NextValues) = NextPointerAndValues
+
+    #Decompress
+    self.Decompress()
+
+    #Check if we are at the end of the feed. 
+    if self.EndPosition == self.Data.index[-1]:
+      self.EOF = True
+      return False
+
+    return True
+
+
+  def Compress(self):
+    
+    #Compress everything except first row.   
+    self.Data = (self.Data.diff()!= 0).replace(False,float("NaN")) * self.Data
+
+    #Check with values if first row can be compressed.
+
+
+  def Decompress(self):
+
+    #Update first row 
+    self.Data.iloc[0] = self.NextValues.loc["Value"].values
+
+    #Forwardfill the rest
+    self.Data = self.Data.ffill()
+
+  def Save(self):
+    #Warn if duplicates.
+    for Key in self.Feed.NameDict:
+      if len(self.Feed.NameDict[Key]) > 1:
+        print "Warning columns with the same source exists. Saving all of them will give unpredictable results."
+        break;
+
+
+    #Split up into induvidial dataframes in accorance with source dictionary.
+    for Key in self.Feed.SourceToNamesDict:
+      Names = self.Feed.SourceToNamesDict[Key]
+      Database = Key[0]
+      Serie = Key[1]
+
+      #Get the ones belonging to this source. 
+      df = self.Data[Names]
+
+      #Write over old data in the database
+      Database.Replace(Serie,dfcomp,'s',False) 
+      
+    return 
+
+  def Seek(self,Position = 0):
+
+    if Position == 0:
+      Position = Feed.StartsAt()
+    
+    self.Position = Position
+    self.EndPosition = Position
+
+    df = Feed.GetValuesAt(Position)
+
+    #Align columns with the stream decriptor. 
+    df = df.reindex_axis(self.DataStreams.columns, axis=1)
+
+    StartsAt = df.loc["Timestamp"].min()
+
+    self.NextValues = df
+
+    self.Next()
+
+    return (StartsAt,self.EndPosition)
+
+  def NextPointerAndValues(self):
+
+    Values = pd.DataFrame(index = ["Timestamp","Value"])
+
+    for (Name,Column) in self.Data.iteritems():
+      Stream = Column.dropna()
+      StreamTime = Stream.index[-1]
+      StreamValue = Stream.values[-1]
+
+      Values[Name] = [StreamTime,StreamValue]
+
+    #Calculate new pointer data. 
+    Pointer = self.Data.index[-1]
+
+    return (Pointer,Values)
             
     
 #Class implementing a feed     
@@ -223,63 +331,9 @@ class Feed():
     if MainFrame.shape[0] > Length:
       MainFrame = MainFrame.iloc[:Length]
 
-    return MainFrame
+    return self.AlignFrame(MainFrame)
 
-  def SaveBuffer(self,Start=None,Length=10,Reverse = False):
-    #Warn if duplicates.
-    for Key in self.NameDict:
-      if len(self.NameDict[Key]) > 1:
-        print "Warning columns with the same source exists. Saving all of them will give unpredictable results."
-        break;
-
-
-    #Split up into induvidial dataframes in accorance with source dictionary.
-    for Key in self.SourceToNamesDict:
-      Names = SourceToNamesDict[Key]
-      Database = Key[0]
-      Serie = Key[1]
-
-      #Get the ones belonging to this source. 
-      df = self.Buffer[Names]
-
-      #Compress those marked as compressed
-      dfcomp = self.Compress(df)
-
-      #Write over old data in the database
-      Database.Replace(Serie,dfcomp,'s',False) 
-      
-    return 
-
-  def Compress(self,df=None):
-
-    df = self.Buffer
-
-    #Make list of columns that will should be compressed.
-    RowsToBeCompressed = self.DataStreams.columns[list(self.DataStreams.loc["Compressed"].values)]
-
-    #Compress all those columns. 
-    CompDf = (df[RowsToBeCompressed].diff()!= 0).replace(False,float("NaN")) * df
-
-    #Merge them back to the original dataframe without touching the other columns. 
-    df[CompDf.columns] = CompDf
-
-    return df
-
-  def Decompress(self,df=None):
-
-    if df == None:
-      df = self.Buffer
-
-    #Update first row 
-    #df.iloc[0] = self.PointerValues.loc["Value"].values
-
-    RowsToBeDecompressed = self.DataStreams.columns[list(self.DataStreams.loc["Compressed"].values)]
-    
-    df[RowsToBeDecompressed] = df[RowsToBeDecompressed].ffill()
-    
-    return df
-
-  def GetPointsPreceeding(self,TimeStamp=None):
+  def GetValuesAt(self,TimeStamp=None):
 
     Values = pd.DataFrame(index = ["Timestamp","Value"])
 
@@ -299,7 +353,7 @@ class Feed():
 
     return Values
 
-  def GetFeedStart(self): 
+  def StartsAt(self): 
 
     FirstTimestamp = 9999999999999
 
@@ -317,67 +371,19 @@ class Feed():
     return Timestamp /1000.0
 
 
-  def SetPointer(self,Timestamp = 0):
+  #Align columns with the stream decriptor
+  def AlignFrame(self,df):
 
-    if Timestamp == 0:
-      Timestamp = self.GetFeedStart()
-
-    df = self.GetPointsPreceeding(Timestamp)
-
-    #Align columns with the stream decriptor. 
     df = df.reindex_axis(self.DataStreams.columns, axis=1)
-
-    StartsAt = df.loc["Timestamp"].min()
-
-    #Store
-    self.Pointer = Timestamp
-    self.PointerValues = df
-
-    return self.Pointer
-
-
-  #Returns a buffer from where the pointer was set and updates the pointer. 
-  def GetBuffer(self,Length=10):
-    #Load raw buffer
-    df = self.LoadBuffer(self.Pointer,Length)
-
-    #Align columns with the stream decriptor
-    df = df.reindex_axis(self.DataStreams.columns, axis=1)
-
-    #Update first row 
-    df.iloc[0] = self.PointerValues.loc["Value"].values
-
-    #Calculate new pointer data. 
-    Pointer = df.index[-1]
-
-    #Check if we are at the end of the feed. 
-    if self.Pointer == Pointer:
-      return None
-
-    #Calculate new pointer values fill in missing starts and decompress.
-    Values = pd.DataFrame(index = ["Timestamp","Value"])
-
-    for (Name,Column) in df.iteritems():
-      Stream = Column.dropna()
-      StreamTime = Stream.index[-1]
-      StreamValue = Stream.values[-1]
-
-      Values[Name] = [StreamTime,StreamValue]
-
-      
-
-      if self.DataStreams[Name]["Compressed"] == True:
-        df.ffill(inplace=True)
-    
-
-
-    #Store
-    self.Pointer = Pointer
-    self.PointerValues = Values
-
-    self.Buffer = df
 
     return df
+
+  #Returns a buffer from where the pointer was set and updates the pointer. 
+  def GetBuffer(self,Position = 0,Size = 10):
+    
+    fb = FeedBuffer(self,Position,Size)
+    return fb
+
 
 #Class implementing a stream.    
 class Stream:
