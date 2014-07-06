@@ -269,7 +269,8 @@ class Feed():
     for Serie in Series:
       Name2 = Name + str(self.DataStreams.shape[1])
       self.AddStream(Name2,Database, Serie,Property,Timeout,TOMarker, Type,Compressed)
-      return self.DataStreams
+    
+    return self.DataStreams
 
   def RemoveStream(self,Id = None):
     if Id == None:
