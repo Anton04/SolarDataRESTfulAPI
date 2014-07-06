@@ -241,8 +241,8 @@ class FeedBuffer():
   def __repr__(self):
     return self.Data.__repr__()
 
-  def _repr_pretty_(self):
-    return self.Data._repr_pretty_()
+  #def _repr_pretty_(self):
+  #  return self.Data._repr_pretty_()
             
     
 #Class implementing a feed     
@@ -263,7 +263,13 @@ class Feed():
 
     self.UpdateSourceAndNameDirectories()
 
-    return self.DataStreams[Name]    
+    return self.DataStreams
+
+  def AddStreamsFromSeriesList(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
+    for Serie in Series:
+      Name2 = Name + self.DataStreams.shape[1]
+      self.AddStream(self,Name2,Database, Serie,Property,Timeout,TOMarker, Type,Compressed)
+      return self.DataStreams
 
   def RemoveStream(self,Id = None):
     if Id == None:
