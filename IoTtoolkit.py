@@ -270,13 +270,20 @@ class Feed():
     return self.DataStreams
 
   def CombineStreamsFromMulipleSources(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
+
+    NameList = []
+
     for Serie in Series:
       Name2 = Name + str(self.DataStreams.shape[1])
       self.AddStream(Name2,Database, Serie,Property,Timeout,TOMarker, Type,Compressed)
+      NameList.append(Name2)
     
-    return self.DataStreams
+    return NameList
 
   def AddSeveralStreamsWithinSameSource(self,Database = None, Serie = None,Properties = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
+
+    NameList = []
+
     for Prop in Properties:
       Name = Prop 
 
@@ -284,8 +291,9 @@ class Feed():
         Name += str(self.DataStreams.shape[1])
 
       self.AddStream(Name,Database,Serie,Prop,Timeout,TOMarker, Type,Compressed)
+      NameList.append(Name)
     
-    return self.DataStreams
+    return NameList
 
 
   def RemoveStream(self,Id = None):
