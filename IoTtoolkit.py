@@ -102,15 +102,15 @@ class Universe:
 
 
 class FeedBuffer():
-  def __init__(self,Feed,Position,Size,AutoDecompress=True):
+  def __init__(self,Feed,Size,AutoDecompress=True):
     self.Feed = Feed
     self.Size = Size
     self.EOF = False
-    self.Data = None
+    self.Data = pd.DataFrame(columns = self.Feed.DataStreams.columns)
     self.AutoDecompress = AutoDecompress
 
     #
-    self.Seek(Position)
+    #self.Seek(Position)
 
   def Next(self):
 
@@ -269,12 +269,24 @@ class Feed():
 
     return self.DataStreams
 
-  def AddStreamsFromSeriesList(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
+  def CombineStreamsFromMulipleSources(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
     for Serie in Series:
       Name2 = Name + str(self.DataStreams.shape[1])
       self.AddStream(Name2,Database, Serie,Property,Timeout,TOMarker, Type,Compressed)
     
     return self.DataStreams
+
+  def AddSeveralStreamsWithinSameSource(self,Database = None, Serie = None,Properties = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
+    for Prop in Properties:
+      Name = Prop 
+
+      while Name in self.DataStreams.columns:
+        Name += str(self.DataStreams.shape[1])
+
+      self.AddStream(Name,Database,Serie,Prop,Timeout,TOMarker, Type,Compressed)
+    
+    return self.DataStreams
+
 
   def RemoveStream(self,Id = None):
     if Id == None:
