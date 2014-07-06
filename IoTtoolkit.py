@@ -147,7 +147,7 @@ class FeedBuffer():
       Timestamp = FirstRow.name
     
       #If an original point is on this timestamp leave it.
-      if fb.Values[Name]["Timestamp"] == Timestamp:
+      if self.Values[Name]["Timestamp"] == Timestamp:
         continue
         
       #If its an other value than the last known also save it. 
