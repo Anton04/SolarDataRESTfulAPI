@@ -144,7 +144,7 @@ class Feed():
 
     SourceDict = {}
     NameDict = {}
-    SourceNameDict = {}
+    SourceToNamesDict = {}
  
     #Sort dbs and series.
     for Stream in self.DataStreams.iteritems():
