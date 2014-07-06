@@ -120,18 +120,18 @@ class FeedBuffer():
     self.Position = self.EndPosition
     self.Values = self.NextValues
 
-    #Decompress
-    self.Decompress()
-
     #New position
     (self.EndPosition,self.NextValues) = self.NextPointerAndValues()
+
+    #Decompress
+    self.Decompress()
 
     #Check if we are at the end of the feed. 
     if self.Position == self.Data.index[-1]:
       self.EOF = True
-      return False
+      return None
 
-    return True
+    return self.Data
 
 
   def Compress(self):
@@ -140,6 +140,10 @@ class FeedBuffer():
     self.Data = (self.Data.diff()!= 0).replace(False,float("NaN")) * self.Data
 
     #Check with values if first row can be compressed.
+    for (Name,Column) in self.Data.iloc[0].iteritems():
+
+
+    return self.Data
 
 
   def Decompress(self):
@@ -149,6 +153,8 @@ class FeedBuffer():
 
     #Forwardfill the rest
     self.Data = self.Data.ffill()
+
+    return self.Data
 
   def Save(self):
     #Warn if duplicates.
@@ -191,7 +197,7 @@ class FeedBuffer():
 
     self.Next()
 
-    return (StartsAt,self.EndPosition)
+    return self.Data
 
   def NextPointerAndValues(self):
 
@@ -199,6 +205,12 @@ class FeedBuffer():
 
     for (Name,Column) in self.Data.iteritems():
       Stream = Column.dropna()
+
+      #If only NaNs use old one. 
+      if len(Stream) == 0:
+        Values[Name] = self.Values[Name]
+        continue
+
       StreamTime = Stream.index[-1]
       StreamValue = Stream.values[-1]
 
