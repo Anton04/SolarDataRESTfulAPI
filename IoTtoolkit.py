@@ -102,7 +102,7 @@ class Universe:
 
 
 class FeedBuffer():
-  def __init__(self,Feed,Position,Size,AutoDecompress=False):
+  def __init__(self,Feed,Position,Size,AutoDecompress=True):
     self.Feed = Feed
     self.Size = Size
     self.EOF = False
@@ -164,11 +164,13 @@ class FeedBuffer():
 
   def Decompress(self):
 
+    RowsToBeDecompressed = self.Feed.DataStreams.columns[list(self.Feed.DataStreams.loc["Compressed"].values)]
+
     #Update first row 
     self.Data.iloc[0] = self.NextValues.loc["Value"].values
 
     #Forwardfill the rest
-    self.Data = self.Data.ffill()
+    self.Data[RowsToBeDecompressed] = self.Data[RowsToBeDecompressed].ffill()
 
     return self.Data
 
@@ -425,7 +427,7 @@ class Feed():
     return df
 
   #Returns a buffer from where the pointer was set and updates the pointer. 
-  def GetBuffer(self,Position = 0,Size = 10,AutoDecompress = False):
+  def GetBuffer(self,Position = 0,Size = 10,AutoDecompress = True):
 
     fb = FeedBuffer(self,Position,Size,AutoDecompress)
     return fb
