@@ -120,7 +120,7 @@ class FeedBuffer():
     self.Position = self.EndPosition
     self.Values = self.NextValues
 
-    (self.EndPosition,self.NextValues) = NextPointerAndValues
+    (self.EndPosition,self.NextValues) = self.NextPointerAndValues()
 
     #Decompress
     self.Decompress()
