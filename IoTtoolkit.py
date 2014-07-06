@@ -439,9 +439,9 @@ class Feed():
     return df
 
   #Returns a buffer from where the pointer was set and updates the pointer. 
-  def GetBuffer(self,Position = 0,Size = 10,AutoDecompress = True):
+  def GetBuffer(self,Size = 10,AutoDecompress = True):
 
-    fb = FeedBuffer(self,Position,Size,AutoDecompress)
+    fb = FeedBuffer(self,Size,AutoDecompress)
     return fb
 
 
