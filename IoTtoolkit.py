@@ -102,11 +102,12 @@ class Universe:
 
 
 class FeedBuffer():
-  def __init__(self,Feed,Position,Size):
+  def __init__(self,Feed,Position,Size,AutoDecompress=False):
     self.Feed = Feed
     self.Size = Size
     self.EOF = False
     self.Data = None
+    self.AutoDecompress = AutoDecompress
 
     #
     self.Seek(Position)
@@ -124,7 +125,8 @@ class FeedBuffer():
     (self.EndPosition,self.NextValues) = self.NextPointerAndValues()
 
     #Decompress
-    self.Decompress()
+    if self.AutoDecompress:
+      self.Decompress()
 
     #Check if we are at the end of the feed. 
     if self.Position == self.Data.index[-1]:
@@ -389,7 +391,8 @@ class Feed():
 
       (StreamTime,StreamValue) = Database.GetPrecedingValue(TimeStamp,Serie,Property)
 
-      #if StreamTime == None:
+      if StreamTime == None:
+        StreamValue = float("NaN")
       #  (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,TimeStamp)
 
       Values[Name] = [StreamTime,StreamValue]
@@ -422,9 +425,9 @@ class Feed():
     return df
 
   #Returns a buffer from where the pointer was set and updates the pointer. 
-  def GetBuffer(self,Position = 0,Size = 10):
+  def GetBuffer(self,Position = 0,Size = 10,AutoDecompress = False):
 
-    fb = FeedBuffer(self,Position,Size)
+    fb = FeedBuffer(self,Position,Size,AutoDecompress)
     return fb
 
 
