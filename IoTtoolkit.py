@@ -234,6 +234,9 @@ class FeedBuffer():
     Pointer = self.Data.index[-1]
 
     return (Pointer,Values)
+
+  def __repr__(self):
+    return self.Data.__repr__()
             
     
 #Class implementing a feed     
