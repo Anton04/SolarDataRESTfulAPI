@@ -274,7 +274,8 @@ class Feed():
     #df.iloc[0] = self.PointerValues.loc["Value"].values
 
     RowsToBeDecompressed = self.DataStreams.columns[list(self.DataStreams.loc["Compressed"].values)]
-    df[RowsToBeDecompressed] = df[RowsToBeDecompressed].ffill(inplace=True)
+    
+    df[RowsToBeDecompressed] = df[RowsToBeDecompressed].ffill()
     
     return df
 
