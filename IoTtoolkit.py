@@ -120,10 +120,11 @@ class FeedBuffer():
     self.Position = self.EndPosition
     self.Values = self.NextValues
 
-    (self.EndPosition,self.NextValues) = self.NextPointerAndValues()
-
     #Decompress
     self.Decompress()
+
+    #New position
+    (self.EndPosition,self.NextValues) = self.NextPointerAndValues()
 
     #Check if we are at the end of the feed. 
     if self.Position == self.Data.index[-1]:
