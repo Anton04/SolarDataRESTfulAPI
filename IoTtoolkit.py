@@ -144,6 +144,7 @@ class Feed():
 
     SourceDict = {}
     NameDict = {}
+    SourceNameDict = {}
  
     #Sort dbs and series.
     for Stream in self.DataStreams.iteritems():
@@ -157,21 +158,24 @@ class Feed():
 
       if not Key in SourceDict:
         SourceDict[Key] = []
+        SourceToNamesDict[Key] = []
 
       SourceDict[Key].append(Property)
+      SourceToNamesDict[Key].append(Name)
 
       #Names
       Key2 = (Database,Series,Property)
 
       if not NameDict.has_key(Key2):
         NameDict[Key2] = []
-
       
       NameDict[Key2].append(Name)
+      
 
     #Save
     self.SourceDict = SourceDict
     self.NameDict = NameDict
+    self.SourceToNamesDict = SourceToNamesDict
 
     return (SourceDict,NameDict)
 
@@ -221,7 +225,45 @@ class Feed():
 
     return MainFrame
 
-   
+  def SaveBuffer(self,Start=None,Length=10,Reverse = False):
+    #Warn if duplicates.
+    for Key in self.NameDict:
+      if len(self.NameDict[Key]) > 1:
+        print "Warning columns with the same source exists. Saving all of them will give unpredictable results."
+        break;
+
+
+    #Split up into induvidial dataframes in accorance with source dictionary.
+    for Key in self.SourceToNamesDict:
+      Names = SourceToNamesDict[Key]
+      Database = Key[0]
+      Serie = Key[1]
+
+      #Get the ones belonging to this source. 
+      df = self.Buffer[Names]
+
+      #Compress those marked as compressed
+      dfcomp = self.Compress(df)
+
+      #Write over old data in the database
+      Database.Replace(Serie,dfcomp,'s',False) 
+      
+    return 
+
+  def Compress(self,df):
+
+    #Make list of columns that will should be compressed.
+    RowsToBeCompressed = self.DataStreams.columns[list(self.DataStreams.loc["Compressed"].values)]
+
+    #Compress all those columns. 
+    CompDf = (df[RowsToBeCompressed].diff()!= 0).replace(False,float("NaN")) * df
+
+    #Merge them back to the original dataframe without touching the other columns. 
+    df[CompDf.columns] = CompDf
+
+    return df
+
+
 
   def GetPointsPreceeding(self,TimeStamp=None):
 
@@ -318,7 +360,7 @@ class Feed():
     self.Pointer = Pointer
     self.PointerValues = Values
 
-
+    self.Buffer = df
 
     return df
 

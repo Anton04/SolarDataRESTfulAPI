@@ -299,14 +299,18 @@ class InfluxDBlayer(InfluxDBClient):
     except:
       return (None,None)
 
-  def Replace(self,series,DataFrame,time_precision = 's'):
+  def Replace(self,series,DataFrame,time_precision = 's',Compressed=True):
     series = self.ProcessSeriesParameter(series)
 
     From = DataFrame.index[0]
     To = DataFrame.index[-1]
 
     self.ClearPeriod(series,From,To,time_precision)
-    self.Save(series,DataFrame,time_precision)
+
+    if Compressed:
+      self.SaveCompressed(series,DataFrame,time_precision)
+    else:  
+      self.Save(series,DataFrame,time_precision)
 
   def ClearPeriod(self,series,From,To,time_precision = 's'):
     series = self.ProcessSeriesParameter(series)
