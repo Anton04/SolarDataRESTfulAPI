@@ -126,7 +126,7 @@ class FeedBuffer():
     self.Decompress()
 
     #Check if we are at the end of the feed. 
-    if self.EndPosition == self.Data.index[-1]:
+    if self.Position == self.Data.index[-1]:
       self.EOF = True
       return False
 
