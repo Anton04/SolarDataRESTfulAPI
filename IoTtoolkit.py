@@ -182,7 +182,7 @@ class FeedBuffer():
     df = self.Feed.GetValuesAt(Position)
 
     #Align columns with the stream decriptor. 
-    df = df.reindex_axis(self.DataStreams.columns, axis=1)
+    df = df.reindex_axis(self.Feed.DataStreams.columns, axis=1)
 
     StartsAt = df.loc["Timestamp"].min()
 
