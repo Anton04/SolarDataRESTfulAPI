@@ -235,8 +235,14 @@ class FeedBuffer():
 
     return (Pointer,Values)
 
+  def Reset(self):
+    return self.Seek(0)
+
   def __repr__(self):
     return self.Data.__repr__()
+
+  def _repr_pretty_(self):
+    return self.Data._repr_pretty_()
             
     
 #Class implementing a feed     
