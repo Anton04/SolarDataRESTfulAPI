@@ -250,7 +250,9 @@ class Feed():
       
     return 
 
-  def Compress(self,df):
+  def Compress(self,df=None):
+
+    df = self.Buffer
 
     #Make list of columns that will should be compressed.
     RowsToBeCompressed = self.DataStreams.columns[list(self.DataStreams.loc["Compressed"].values)]
@@ -263,7 +265,18 @@ class Feed():
 
     return df
 
+  def Decompress(self,df=None):
 
+    if df == None:
+      df = self.Buffer
+
+    #Update first row 
+    df.iloc[0] = self.PointerValues.loc["Value"].values
+
+    RowsToBeDecompressed = self.DataStreams.columns[list(self.DataStreams.loc["Compressed"].values)]
+    df[RowsToBeCompressed].ffill(inplace=True)
+    
+    return df
 
   def GetPointsPreceeding(self,TimeStamp=None):
 
@@ -320,6 +333,7 @@ class Feed():
     self.PointerValues = df
 
     return self.Pointer
+
 
   #Returns a buffer from where the pointer was set and updates the pointer. 
   def GetBuffer(self,Length=10):
