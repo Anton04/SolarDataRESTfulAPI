@@ -174,12 +174,12 @@ class FeedBuffer():
   def Seek(self,Position = 0):
 
     if Position == 0:
-      Position = Feed.StartsAt()
+      Position = self.Feed.StartsAt()
     
     self.Position = Position
     self.EndPosition = Position
 
-    df = Feed.GetValuesAt(Position)
+    df = self.Feed.GetValuesAt(Position)
 
     #Align columns with the stream decriptor. 
     df = df.reindex_axis(self.DataStreams.columns, axis=1)
@@ -380,7 +380,7 @@ class Feed():
 
   #Returns a buffer from where the pointer was set and updates the pointer. 
   def GetBuffer(self,Position = 0,Size = 10):
-    
+
     fb = FeedBuffer(self,Position,Size)
     return fb
 
