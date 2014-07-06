@@ -267,7 +267,7 @@ class Feed():
 
   def AddStreamsFromSeriesList(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
     for Serie in Series:
-      Name2 = Name + self.DataStreams.shape[1]
+      Name2 = Name + str(self.DataStreams.shape[1])
       self.AddStream(self,Name2,Database, Serie,Property,Timeout,TOMarker, Type,Compressed)
       return self.DataStreams
 
