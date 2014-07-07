@@ -178,6 +178,18 @@ def MakeDictLowerCase(dictionary):
 
     return new_dict
 
+def MakeListLowerCase(l):
+    NewList = []
+
+    for value in l:
+        if type(value) == str:
+            new_value = value.lower()
+        else:
+            new_value = value
+
+        NewList.append(new_value)
+
+    return NewList
 
 
 @app.route('/solardata', methods = ['GET'])
