@@ -228,6 +228,64 @@ def getProductionDataSites(keys):
 
     return {"sites":reply, "_total_hits":res['hits']['total']}
 
+def getProductionDataAreas(keys):
+    print keys
+
+    index = ["Country","County","Municipality","Administrative_area","Citypart"]
+
+    query = []
+
+    l = len(keys)
+
+    if l == 0:
+        totalquery = {"size":1000,"query": {"match_all": {} }}
+
+    else:
+
+        for f in range(0,l):
+            query.append({"match" : {index[f]:keys[f]} })
+
+
+        totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
+ 
+
+    res = es.search(index="solar-areas-index",doc_type="meta-data", body=totalquery)
+
+
+    print("Got %d Hits:" % res['hits']['total'])
+
+    #print res
+    #print "  "
+
+    #Get parameters 
+    tail = request.args.get("tail",1000,type=int)
+    since = request.args.get("since","now()-7d")
+    until = request.args.get("until","now()",type=int)
+
+    print "___"*10
+    print tail, since, until
+
+
+    if tail > 10000:
+    abort(411)
+
+   
+
+    #Make a nicer list
+    reply = []
+    for hit in res['hits']['hits']:
+        siteUUID = hit["_id"]
+        q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+        print q
+        data = AreaDB.query(q,'m')        
+        #data[0]['columns'][2]="Power"
+        #data[0]['columns'][3]="Energy_counter"
+
+        #data = []
+        reply.append({siteUUID:data})
+        #print("Added: %(Owner)s: %(Address)s" % hit["_source"])
+
+    return {"areas":reply, "_total_hits":res['hits']['total']}
 
 def get_query_string(path):
     #Check for exact match
@@ -298,7 +356,7 @@ def get_area_data(path_url):
     elif parts[-1] == "_geography":
         return Response(json.dumps(getGeographyData(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return "Not implemented"
+        return Response(json.dumps(getProductionDataAreas(parts[:-1])),  mimetype='application/json')
 
     return "Not implemented"
 
