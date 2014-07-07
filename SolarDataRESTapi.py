@@ -229,7 +229,7 @@ def getSolarObject(uid,Index,DB,Name,subset=["_meta","_production"]):
     if len(reply) == 2:
         replys = reply[reply.keys()[-1]]
 
-    return {Name:reply, "_total_hits":res['hits']['total']}
+    return {Name:reply}
 
 def MakeDictLowerCase(dictionary):
     new_dict = {}
@@ -260,6 +260,8 @@ def MakeListLowerCase(l):
         if type(value) == str or type(value) == unicode:
             new_value = value.lower()
         else:
+            print type(value)
+            print value
             new_value = value
 
         NewList.append(new_value)
@@ -324,9 +326,9 @@ def get_site_by_id_data(path_url):
         abort(404)
 
     if parts[-1] == "_meta":
-        return Response(json.dumps(getSolarObject(parts[:-1],"solar-sites-index",ProductionDB,"sites",[parts[-1]])), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarObject(parts[:-1],"solar-sites-index",ProductionDB,"site",[parts[-1]])), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getSolarObject(parts[:-1],"solar-sites-index",ProductionDB,"sites",[parts[-1]])), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
+        return Response(json.dumps(getSolarObject(parts[:-1],"solar-sites-index",ProductionDB,"site",[parts[-1]])), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
     elif parts[-1] == "_geography":
         return "Not implemented"
 
