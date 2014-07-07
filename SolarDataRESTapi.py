@@ -367,7 +367,7 @@ def getSolarData(keys,Index,DB,Name):
         reply = hit["_source"]
         reply["UUID"] = siteUUID
         
-        reply[_production] = data
+        reply["_production"] = data
 
     return {Name:reply, "_total_hits":res['hits']['total']}
 
