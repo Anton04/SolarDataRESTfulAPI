@@ -116,7 +116,10 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
             print q
             data = DB.query(q,'m')
-            reply["_production"] = data[0]
+            if len(data) > 0:
+                reply["_production"] = data[0]
+            else:
+                reply["_production"] = {}
 
         #Geography
         if "_geography" in subset:
