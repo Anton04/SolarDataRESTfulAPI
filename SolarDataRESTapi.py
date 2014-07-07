@@ -116,6 +116,9 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
             if lowercase:
                 reply["_meta"] = MakeDictLowerCase(reply["_meta"])
+                print "Lowering..."
+                print reply["_meta"]
+                print MakeDictLowerCase(reply["_meta"])
 
         #Production.
         if  "_production" in subset:
