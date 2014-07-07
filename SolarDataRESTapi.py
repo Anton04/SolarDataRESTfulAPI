@@ -309,14 +309,14 @@ def getProductionDataAreas(keys):
 #    print "No match found"    
 #    return ""
 
-#def get_parts(path_url):
+def get_parts(path_url):
     #Remove trailing slash
-#    if path_url[-1] == "/":
-#        path_url = path_url[:-1]
+    if path_url[-1] == "/":
+        path_url = path_url[:-1]
     
-#    parts = path_url.split("/")
+    parts = path_url.split("/")
 
-#    return parts
+    return parts
 
 def getSolarData(keys,Index,DB,Name):
 
