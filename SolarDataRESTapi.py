@@ -403,7 +403,7 @@ if __name__ == '__main__':
     DataLink = InfluxDBInterface.InfluxDBInterface("influxInterfaceCredentials2.json")
     LogDB = DataLink.databases[u'SolarLogdata']
     ProductionDB = DataLink.databases[u'SolarProductionSites']
-
+    AreaDB = DataLink.databases[u'SolarProductionAreas']
 
     #topics = DataLink.listdataseries()
 
