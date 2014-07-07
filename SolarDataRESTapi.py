@@ -347,7 +347,7 @@ if __name__ == '__main__':
     ProductionDB = DataLink.databases[u'SolarProductionSites']
 
 
-    topics = DataLink.listdataseries()
+    #topics = DataLink.listdataseries()
 
 
     #es = Elasticsearch()    
