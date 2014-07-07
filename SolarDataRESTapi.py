@@ -110,6 +110,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
         #Meta data.
         if "_meta" in subset:
             reply["_meta"] = hit["_source"]
+            reply["_meta"]["UUID"] = siteUUID
 
         #Production.
         if  "_production" in subset:
@@ -120,6 +121,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 reply["_production"] = data[0]
             else:
                 reply["_production"] = {}
+            reply["_production"]["UUID"] = reply["_production"].pop("Name")
 
         #Geography
         if "_geography" in subset:
