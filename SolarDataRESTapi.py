@@ -141,7 +141,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
         
         #Skip one level if its just one data source (not counting id). 
         if len(reply) == 2:
-            replys.append(reply[reply.keys[-1]])
+            replys.append(reply[reply.keys()[-1]])
         else:
             replys.append(reply)
         
