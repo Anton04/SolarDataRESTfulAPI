@@ -93,7 +93,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
     lowercase = request.args.get("lowercase",False,type=bool)
 
     print "___"*10
-    print tail, since, until
+    print tail, since, until, lowercase
 
     #Avoid doing to large requests
     if tail > 10000:
