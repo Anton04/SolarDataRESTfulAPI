@@ -19,18 +19,6 @@ app.config.update(dict(
 #    PASSWORD='default'
 	))
 
-#def getmetadata(parts):
-
-#    if parts[-2] == "sites":
-#	return getMetadataSites(parts)
-#    elif parts[-2] == "parts":
-#	return "Not implemented"
-#    elif parts[-2] == "administrative_areas":
-#        return "Not implemented"    
-
-#    abort(404)
-            
-#    return
 
 def getGeographyData(keys):
 
@@ -62,258 +50,6 @@ def getGeographyData(keys):
        	   
     return {"features":features,"crs":crs,"type":jsontype}
 
-def getMetadataAreas(keys):
-    print keys
-    
-    index = ["Country","County","Municipality","Administrative_area","Citypart"]
-    
-    query = []
-    
-    l = len(keys)
-        
-    if l == 0:
-        totalquery = {"size":1000,"query": {"match_all": {} }}
-    
-    else:
-
-        for f in range(0,l):
-            query.append({"match" : {index[f]:keys[f]} })
-    
-
-        totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
-        
-
-    res = es.search(index="solar-area-index",doc_type="meta-data", body=totalquery)
-
-    
-    print("Got %d Hits:" % res['hits']['total'])
-    
-    #print res
-    #print "  "
-        
-    #Make a nicer list
-    reply = []
-    for hit in res['hits']['hits']:
-
-        properties = hit["_source"]
-
-	site = {hit["_id"]:{"_meta":properties}}	
-
-        reply.append(site)
-        #print("Added: %(Owner)s: %(Address)s" % hit["_source"])
-
-	#Get the search parameters fore this site. 
-        params = json.loads(hit["_source"]["query"])
-
-	print params	
-
-        #Add dynamic properties. 	
-	df = es.GetHitsMatchingPropDict(index="solar-sites-index",doc_type="meta-data",dict=params)
-
-	#If no hits
-	if df.shape[1] == 0:
-	  properties["Pmax_monitored"] = 0
-
-	#If N hits 
-	else:
-
-  	  try:
-
-            #Calculate nSites
-            nSites = df.shape[1]
-            properties["nSites_monitored"] = nSites
-  
-            #Calculate Pmax.
-            Pmax = df.loc["Pmax"].sum()
-	    properties["Pmax_monitored"] = Pmax
-	    #site[hit["_id"]]["Pmax"] = Pmax
-
-	  except Exception,e: 
-            print str(e)
-	
-	
-    
-    return {"areas":reply, "_total_hits":res['hits']['total']}
-
-#Return the metadata limided by the keys sent. 
-def getMetadataSites(keys):
-
-    print keys
-
-    index = ["Country","County","Municipality","Administrative_area","Citypart"]
-
-    query = []
-
-    l = len(keys)
-
-    if l == 0:
-	totalquery = {"size":1000,"query": {"match_all": {} }}
-
-    else:
-
-        for f in range(0,l):
-            query.append({"match" : {index[f]:keys[f]} })
-
-
-        totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
- 
-
-    res = es.search(index="solar-sites-index",doc_type="meta-data", body=totalquery)
-
-
-    print("Got %d Hits:" % res['hits']['total'])
-
-    #print res
-    #print "  "
-
-    #Make a nicer list
-    reply = []
-    for hit in res['hits']['hits']:
-        reply.append({hit["_id"]:{"_meta":hit["_source"]}})
-        #print("Added: %(Owner)s: %(Address)s" % hit["_source"])
-    
-    return {"sites":reply, "_total_hits":res['hits']['total']}
-
-def getProductionDataSites(keys):
-    print keys
-
-    index = ["Country","County","Municipality","Administrative_area","Citypart"]
-
-    query = []
-
-    l = len(keys)
-
-    if l == 0:
-        totalquery = {"size":1000,"query": {"match_all": {} }}
-
-    else:
-
-        for f in range(0,l):
-            query.append({"match" : {index[f]:keys[f]} })
-
-
-        totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
- 
-
-    res = es.search(index="solar-sites-index",doc_type="meta-data", body=totalquery)
-
-
-    print("Got %d Hits:" % res['hits']['total'])
-
-    #print res
-    #print "  "
-
-    #Get parameters 
-    tail = request.args.get("tail",1000,type=int)
-    since = request.args.get("since","now()-7d")
-    until = request.args.get("until","now()",type=int)
-
-    print "___"*10
-    print tail, since, until
-
-
-    if tail > 10000:
-	abort(411)
-
-   
-
-    #Make a nicer list
-    reply = []
-    for hit in res['hits']['hits']:
-        siteUUID = hit["_id"]
-        q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
-        print q
-        data = ProductionDB.query(q,'m')        
-        #data[0]['columns'][2]="Power"
-        #data[0]['columns'][3]="Energy_counter"
-
-        #data = []
-        reply.append({siteUUID:data})
-        #print("Added: %(Owner)s: %(Address)s" % hit["_source"])
-
-    return {"sites":reply, "_total_hits":res['hits']['total']}
-
-def getProductionDataAreas(keys):
-    print keys
-
-    index = ["Country","County","Municipality","Administrative_area","Citypart"]
-
-    query = []
-
-    l = len(keys)
-
-    if l == 0:
-        totalquery = {"size":1000,"query": {"match_all": {} }}
-
-    else:
-
-        for f in range(0,l):
-            query.append({"match" : {index[f]:keys[f]} })
-
-
-        totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
- 
-
-    res = es.search(index="solar-area-index",doc_type="meta-data", body=totalquery)
-
-
-    print("Got %d Hits:" % res['hits']['total'])
-
-    #print res
-    #print "  "
-
-    #Get parameters 
-    tail = request.args.get("tail",1000,type=int)
-    since = request.args.get("since","now()-7d")
-    until = request.args.get("until","now()",type=int)
-
-    print "___"*10
-    print tail, since, until
-
-
-    if tail > 10000:
-        abort(411)
-
-   
-
-    #Make a nicer list
-    reply = []
-    for hit in res['hits']['hits']:
-        siteUUID = hit["_id"]
-        q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
-        print q
-        data = AreaDB.query(q,'m')        
-        #data[0]['columns'][2]="Power"
-        #data[0]['columns'][3]="Energy_counter"
-
-        #data = []
-        reply.append({siteUUID:data})
-        #print("Added: %(Owner)s: %(Address)s" % hit["_source"])
-
-    return {"areas":reply, "_total_hits":res['hits']['total']}
-
-#def get_query_string(path):
-#    #Check for exact match
-#    if path in topics:
-#	print "Exact topic match found!"
-#	return "select * from \"" + path + "\";"
-
-    #Check for property match 
- #   parts = path.split("/")
- #   lastpart = parts[-1]
- #   firstpart = path[:(-len(lastpart)-1)]
-
- #   print "DEBUG"
- #   print lastpart
- #   print firstpart
-
-#    if firstpart in topics:
-#        print "Partial match"
-#        return "select "+ lastpart +" from \"" + firstpart + "\";"
-
-#    print "No match found"    
-#    return ""
-
 def get_parts(path_url):
     #Remove trailing slash
     if path_url[-1] == "/":
@@ -323,7 +59,7 @@ def get_parts(path_url):
 
     return parts
 
-def getSolarData(keys,Index,DB,Name,subset=None):
+def getSolarObjects(keys,Index,DB,Name,subset=None):
 
 
     #Map the keys in the request path to the following properties. 
@@ -367,13 +103,14 @@ def getSolarData(keys,Index,DB,Name,subset=None):
     for hit in res['hits']['hits']:
         siteUUID = hit["_id"]
         
+        #Add ID.
         reply = {}
-
-        #Add if not production specified.
-        if subset != "_production":
-            reply["_meta"] = hit["_source"]
-
         reply["UUID"] = siteUUID
+
+        #Meta data.
+        reply["_meta"] = hit["_source"]
+
+        
 
         #Add if not meta specified.
         if subset != "_meta":
@@ -382,7 +119,7 @@ def getSolarData(keys,Index,DB,Name,subset=None):
             data = DB.query(q,'m')
             reply["_production"] = data
 
-        if subset == None
+        if subset == None:
             replys.append(reply)
         else:
             replys.append(reply[subset])
@@ -406,13 +143,13 @@ def get_site_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return Response(json.dumps(getSolarData(parts[:-1],"solar-sites-index",ProductionDB,"sites",parts[-1])), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-sites-index",ProductionDB,"sites",parts[-1])), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getSolarData(parts[:-1],"solar-sites-index",ProductionDB,"sites",parts[-1])), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
+        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-sites-index",ProductionDB,"sites",parts[-1])), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
     elif parts[-1] == "_geography":
         return "Not implemented"
 
-    return Response(json.dumps(getSolarData(parts,"solar-sites-index",ProductionDB,"sites")), mimetype='application/json')
+    return Response(json.dumps(getSolarObjects(parts,"solar-sites-index",ProductionDB,"sites")), mimetype='application/json')
         
 
 ####################
@@ -426,13 +163,13 @@ def get_area_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return Response(json.dumps(getSolarData(parts[:-1],"solar-area-index",AreaDB,"areas",parts[-1])), mimetype='application/json')#Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-area-index",AreaDB,"areas",parts[-1])), mimetype='application/json')#Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_geography":
         return Response(json.dumps(getGeographyData(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getSolarData(parts[:-1],"solar-area-index",AreaDB,"areas",parts[-1])), mimetype='application/json')
+        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-area-index",AreaDB,"areas",parts[-1])), mimetype='application/json')
 
-    return Response(json.dumps(getSolarData(parts,"solar-area-index",AreaDB,"areas")), mimetype='application/json')
+    return Response(json.dumps(getSolarObjects(parts,"solar-area-index",AreaDB,"areas")), mimetype='application/json')
 
 
 
