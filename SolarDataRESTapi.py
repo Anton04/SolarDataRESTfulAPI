@@ -116,7 +116,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
             if lowercase:
                 reply["_meta"] = MakeDictLowerCase(reply["_meta"])
-                print "Lowering ..."
+                
                 
 
         #Production.
@@ -173,6 +173,7 @@ def getSolarObject(uid,Index,DB,Name,subset=["_meta","_production"]):
 
     print "___"*10
     print tail, since, until, lowercase
+    print type(lowercase)
 
     #Avoid doing to large requests
     if tail > 10000:
@@ -252,8 +253,6 @@ def MakeDictLowerCase(dictionary):
             new_value = value.lower()
         else:
             new_value = value
-            print tvalue
-            print value
 
         new_dict[new_key] = new_value
 
