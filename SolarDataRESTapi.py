@@ -59,7 +59,7 @@ def get_parts(path_url):
 
     return parts
 
-def getSolarObjects(keys,Index,DB,Name,subset=None):
+def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]]):
 
 
     #Map the keys in the request path to the following properties. 
@@ -105,24 +105,34 @@ def getSolarObjects(keys,Index,DB,Name,subset=None):
         
         #Add ID.
         reply = {}  
-        reply["UUID"] = siteUUID
+        reply["_UUID"] = siteUUID
 
         #Meta data.
-        reply["_meta"] = hit["_source"]
+        if "_meta" in subset:
+            reply["_meta"] = hit["_source"]
 
-        
-
-        #Add if not meta specified.
-        if subset != "_meta":
+        #Production.
+        if  "_production" in subset:
             q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
             print q
             data = DB.query(q,'m')
             reply["_production"] = data[0]
 
-        if subset == None:
-            replys.append(reply)
-        else:
-            replys.append(reply[subset])
+        #Geography
+        if "_geography" in subset:
+            features = []
+            #Request data. 
+            #query.append({"match" : {index[f]:keys[f]} })
+            #totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
+            #res = es.search(index=Index,doc_type="geography-data", body=totalquery)
+
+            reply["_geography"] = {}
+            reply["_geography"]["crs"] = {"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::3011"}}
+            reply["_geography"]["type"] = "FeatureCollection"
+            reply["_geography"]["features"] = features
+        
+        replys.append(reply)
+        
 
     return {Name:replys, "_total_hits":res['hits']['total']}
 
@@ -143,9 +153,9 @@ def get_site_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-sites-index",ProductionDB,"sites",parts[-1])), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-sites-index",ProductionDB,"sites",[parts[-1]])), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-sites-index",ProductionDB,"sites",parts[-1])), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
+        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-sites-index",ProductionDB,"sites",[parts[-1]])), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
     elif parts[-1] == "_geography":
         return "Not implemented"
 
@@ -163,11 +173,11 @@ def get_area_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-area-index",AreaDB,"areas",parts[-1])), mimetype='application/json')#Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-area-index",AreaDB,"areas",[parts[-1]])), mimetype='application/json')#Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_geography":
         return Response(json.dumps(getGeographyData(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-area-index",AreaDB,"areas",parts[-1])), mimetype='application/json')
+        return Response(json.dumps(getSolarObjects(parts[:-1],"solar-area-index",AreaDB,"areas",[parts[-1]])), mimetype='application/json')
 
     return Response(json.dumps(getSolarObjects(parts,"solar-area-index",AreaDB,"areas")), mimetype='application/json')
 
