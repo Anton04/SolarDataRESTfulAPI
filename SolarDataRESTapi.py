@@ -314,7 +314,7 @@ def get_area_data(path_url):
 #   Get site by id  #
 ####################
 @app.route('/solardata/site-by-id/<path:path_url>', methods = ['GET'])
-def get_site-by-id_data(path_url):
+def get_site_by_id_data(path_url):
 
     parts = get_parts(path_url)
 
