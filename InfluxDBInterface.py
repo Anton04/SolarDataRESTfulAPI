@@ -84,6 +84,9 @@ class InfluxDBlayer(InfluxDBClient):
 
     df =  self.ResultToDataframe(res)
 
+    if type(df) != pd.DataFrame:
+      return None
+
     if type(properties) == list:
       #Add missing parameters
       for prop in properties:
