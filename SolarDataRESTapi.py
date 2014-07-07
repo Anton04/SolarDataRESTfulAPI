@@ -249,7 +249,7 @@ def getProductionDataAreas(keys):
         totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
  
 
-    res = es.search(index="solar-areas-index",doc_type="meta-data", body=totalquery)
+    res = es.search(index="solar-area-index",doc_type="meta-data", body=totalquery)
 
 
     print("Got %d Hits:" % res['hits']['total'])
