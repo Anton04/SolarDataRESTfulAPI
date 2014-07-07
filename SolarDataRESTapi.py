@@ -318,6 +318,61 @@ def get_parts(path_url):
 
     return parts
 
+def getSolarData(keys,Index = "solar-sites-index",DB = ProductionDB,Name = "sites"):
+
+    #Map the keys in the request path to the following properties. 
+    index = ["Country","County","Municipality","Administrative_area","Citypart"]
+
+    #Produce the query for elastic search. 
+    query = []
+
+    #If now keys are supplied request all entries. 
+    l = len(keys)
+    if l == 0:
+        totalquery = {"size":1000,"query": {"match_all": {} }}
+
+    #Match each key
+    else:
+        for f in range(0,l):
+            query.append({"match" : {index[f]:keys[f]} })
+
+
+        totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
+ 
+    #Request data. 
+    res = es.search(index=Index,doc_type="meta-data", body=totalquery)
+
+    print("Got %d Hits:" % res['hits']['total'])
+
+    #Get parameters in the request.
+    tail = request.args.get("tail",1000,type=int)
+    since = request.args.get("since","now()-7d")
+    until = request.args.get("until","now()",type=int)
+
+    print "___"*10
+    print tail, since, until
+
+    #Avoid doing to large requests
+    if tail > 10000:
+    abort(411)
+
+    #Process the hits and requests additional data from influxDB
+    replys = []
+    for hit in res['hits']['hits']:
+        siteUUID = hit["_id"]
+        q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+        print q
+        data = DB.query(q,'m')        
+
+        reply = hit["_source"]
+        reply["UUID"] = siteUUID
+        
+        reply[_production] = data
+
+    return {Name:reply, "_total_hits":res['hits']['total']}
+
+
+
 @app.route('/solardata', methods = ['GET'])
 def get_index():
     return jsonify( { 'tasks': tasks } )
@@ -338,8 +393,9 @@ def get_site_data(path_url):
         return Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
     elif parts[-1] == "_geography":
         return "Not implemented"
+
+    return Response(json.dumps(getSolarData(parts,"solar-sites-index",ProductionDB,"sites")), mimetype='application/json')
         
-    return "Not implemented"
 
 ####################
 #   Get area data  #
@@ -358,38 +414,8 @@ def get_area_data(path_url):
     elif parts[-1] == "_production":
         return Response(json.dumps(getProductionDataAreas(parts[:-1])),  mimetype='application/json')
 
-    return "Not implemented"
+    return Response(json.dumps(getSolarData(parts,"solar-area-index",AreaDB,"areas")), mimetype='application/json')
 
-
-@app.route('/solardata/by-administrative-region/<path:path_url>', methods = ['GET'])
-def get_solardata(path_url):
-
-    #request.args.get
-
-    parts = get_parts(path_url)
-
-    print parts
-
-    if parts[-1] == "meta":
-	return json.dumps(getmetadata(parts))	
-    elif parts[-1] == "production":
-        return "Not implemented"
-    elif parts[-1] == "geography":
-        return "Not implemented"
-
-    print path_url
-
-    	    
-
-    #result = getmedadatasites()    
-
-    #query = get_query_string(path_url)
-    #if query == "":
-    abort(404)
-    #	return
-    #result = client.query(query)
-
-    return 
 
 
 if __name__ == '__main__':
