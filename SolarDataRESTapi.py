@@ -318,7 +318,7 @@ def getProductionDataAreas(keys):
 
 #    return parts
 
-def getSolarData(keys,Index = "solar-sites-index",DB = ProductionDB,Name = "sites"):
+def getSolarData(keys,Index,DB,Name):
 
     #Map the keys in the request path to the following properties. 
     index = ["Country","County","Municipality","Administrative_area","Citypart"]
