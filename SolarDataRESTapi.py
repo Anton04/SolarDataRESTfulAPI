@@ -59,7 +59,7 @@ def get_parts(path_url):
 
     return parts
 
-def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]]):
+def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
 
     #Map the keys in the request path to the following properties. 
