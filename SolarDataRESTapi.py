@@ -365,12 +365,12 @@ def getSolarData(keys,Index,DB,Name,meta=True,production=True):
     replys = []
     for hit in res['hits']['hits']:
         siteUUID = hit["_id"]
-                
-        #Add meta if specified. 
+        
+        reply = {}
+
+        #Add meta if specified.
         if meta:
-            reply = hit["_source"]
-        else:
-            reply = {}
+            reply["_meta"] = hit["_source"]
 
         reply["UUID"] = siteUUID
 
