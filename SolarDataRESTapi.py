@@ -402,9 +402,9 @@ def get_site_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return Response(json.dumps(getSolarData(parts,"solar-sites-index",ProductionDB,"sites",production=False)), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarData(parts[:-1],"solar-sites-index",ProductionDB,"sites",production=False)), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getSolarData(parts,"solar-sites-index",ProductionDB,"sites",meta=False)), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
+        return Response(json.dumps(getSolarData(parts[:-1],"solar-sites-index",ProductionDB,"sites",meta=False)), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
     elif parts[-1] == "_geography":
         return "Not implemented"
 
@@ -422,11 +422,11 @@ def get_area_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return Response(json.dumps(getSolarData(parts,"solar-area-index",AreaDB,"areas",production=False)), mimetype='application/json')#Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarData(parts[:-1],"solar-area-index",AreaDB,"areas",production=False)), mimetype='application/json')#Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_geography":
         return Response(json.dumps(getGeographyData(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getSolarData(parts,"solar-area-index",AreaDB,"areas",meta=False)), mimetype='application/json')
+        return Response(json.dumps(getSolarData(parts[:-1],"solar-area-index",AreaDB,"areas",meta=False)), mimetype='application/json')
 
     return Response(json.dumps(getSolarData(parts,"solar-area-index",AreaDB,"areas")), mimetype='application/json')
 
