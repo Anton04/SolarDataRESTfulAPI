@@ -61,7 +61,7 @@ def getGeographyData(keys):
             jsontype = data["type"]
        	   
     return {"features":features,"crs":crs,"type":jsontype}
-    
+
 def getMetadataAreas(keys):
     print keys
     
@@ -323,7 +323,7 @@ def get_parts(path_url):
 
     return parts
 
-def getSolarData(keys,Index,DB,Name):
+def getSolarData(keys,Index,DB,Name,meta=True,production=True):
 
     #Map the keys in the request path to the following properties. 
     index = ["Country","County","Municipality","Administrative_area","Citypart"]
@@ -365,13 +365,21 @@ def getSolarData(keys,Index,DB,Name):
     replys = []
     for hit in res['hits']['hits']:
         siteUUID = hit["_id"]
-        q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
-        print q
-        data = DB.query(q,'m')        
+                
+        #Add meta if specified. 
+        if meta:
+            reply = hit["_source"]
+        else:
+            reply = {}
 
-        reply = hit["_source"]
         reply["UUID"] = siteUUID
-        reply["_production"] = data
+
+        #If specified add production. 
+        if production:
+            q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+            print q
+            data = DB.query(q,'m')
+            reply["_production"] = data
 
         replys.append(reply)
 
@@ -394,9 +402,9 @@ def get_site_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarData(parts,"solar-sites-index",ProductionDB,"sites",production=False)), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
+        return Response(json.dumps(getSolarData(parts,"solar-sites-index",ProductionDB,"sites",meta=False)), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
     elif parts[-1] == "_geography":
         return "Not implemented"
 
@@ -414,11 +422,11 @@ def get_area_data(path_url):
     print parts
 
     if parts[-1] == "_meta":
-        return Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarData(parts,"solar-area-index",AreaDB,"areas",production=False)), mimetype='application/json')#Response(json.dumps(getMetadataAreas(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_geography":
         return Response(json.dumps(getGeographyData(parts[:-1])),  mimetype='application/json')
     elif parts[-1] == "_production":
-        return Response(json.dumps(getProductionDataAreas(parts[:-1])),  mimetype='application/json')
+        return Response(json.dumps(getSolarData(parts,"solar-area-index",AreaDB,"areas",meta=False)), mimetype='application/json')
 
     return Response(json.dumps(getSolarData(parts,"solar-area-index",AreaDB,"areas")), mimetype='application/json')
 
