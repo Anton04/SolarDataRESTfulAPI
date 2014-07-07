@@ -119,9 +119,11 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             data = DB.query(q,'m')
             if len(data) > 0:
                 reply["_production"] = data[0]
-                reply["_production"]["UUID"] = reply["_production"].pop("name")
+                reply["_production"].pop("name") 
             else:
                 reply["_production"] = {}
+
+            reply["_production"]["UUID"] = siteUUID
             
 
         #Geography
@@ -137,7 +139,11 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             reply["_geography"]["type"] = "FeatureCollection"
             reply["_geography"]["features"] = features
         
-        replys.append(reply)
+        #Skip one level if its just one data source (not counting id). 
+        if len(reply) == 2:
+            replys.append(reply[reply.keys[-1]])
+        else:
+            replys.append(reply)
         
 
     return {Name:replys, "_total_hits":res['hits']['total']}
