@@ -424,6 +424,7 @@ class Feed():
   def StartsAt(self): 
 
     FirstTimestamp = 9999999999999
+    Timestamp = 0
 
     #Loop through all and look for the stream that starts first. 
     for (Name,Properties) in self.DataStreams.iteritems():
