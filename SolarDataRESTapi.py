@@ -234,25 +234,25 @@ def getSolarObject(uid,Index,DB,Name,subset=["_meta","_production"]):
 
 def MakeDictLowerCase(dictionary):
 
-    print "MakeDictLowerCase Called"
-
     new_dict = {}
 
     for key in dictionary:
         value = dictionary[key]
+        tkey = type(key)
+        tvalue = type(value)
 
         #Convert key
-        if type(key) == str or type(value) == unicode:            
+        if tkey == str or tkey == unicode:            
             new_key = key.lower()
         else:
             new_key = key
 
         #Convert value
-        if type(value) == str:            
+        if tvalue == str or tvalue == unicode:            
             new_value = value.lower()
         else:
             new_value = value
-            print type(value)
+            print tvalue
             print value
 
         new_dict[new_key] = new_value
@@ -263,10 +263,12 @@ def MakeListLowerCase(l):
     NewList = []
 
     for value in l:
-        if type(value) == str or type(value) == unicode:
+
+        tvalue = type(value)
+
+        if tvalue == str or tvalue == unicode:
             new_value = value.lower()
         else:
-            
             new_value = value
 
         NewList.append(new_value)
