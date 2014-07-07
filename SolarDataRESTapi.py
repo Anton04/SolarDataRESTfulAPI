@@ -46,7 +46,9 @@ def getGeographyData(keys):
     if not os.path.exists(path):
         abort(404)
 
-    result = []
+    features =[]
+    crs = {}
+    jsontype = {}
 
     for filename in os.listdir(path):
         if filename.endswith(".geojson"):
@@ -54,9 +56,12 @@ def getGeographyData(keys):
             data = json.load(file)
             file.close()
 
-            result.append(data)
+            features += data["features"]
+            crs = data["crs"]
+            jsontype = data["type"]
        	   
-    return result
+    return {"features":features,"crs":crs,"type":jsontype}
+    
 def getMetadataAreas(keys):
     print keys
     
