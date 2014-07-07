@@ -19,18 +19,18 @@ app.config.update(dict(
 #    PASSWORD='default'
 	))
 
-def getmetadata(parts):
+#def getmetadata(parts):
 
-    if parts[-2] == "sites":
-	return getMetadataSites(parts)
-    elif parts[-2] == "parts":
-	return "Not implemented"
-    elif parts[-2] == "administrative_areas":
-        return "Not implemented"    
+#    if parts[-2] == "sites":
+#	return getMetadataSites(parts)
+#    elif parts[-2] == "parts":
+#	return "Not implemented"
+#    elif parts[-2] == "administrative_areas":
+#        return "Not implemented"    
 
-    abort(404)
+#    abort(404)
             
-    return
+#    return
 
 def getGeographyData(keys):
 
@@ -287,36 +287,36 @@ def getProductionDataAreas(keys):
 
     return {"areas":reply, "_total_hits":res['hits']['total']}
 
-def get_query_string(path):
-    #Check for exact match
-    if path in topics:
-	print "Exact topic match found!"
-	return "select * from \"" + path + "\";"
+#def get_query_string(path):
+#    #Check for exact match
+#    if path in topics:
+#	print "Exact topic match found!"
+#	return "select * from \"" + path + "\";"
 
     #Check for property match 
-    parts = path.split("/")
-    lastpart = parts[-1]
-    firstpart = path[:(-len(lastpart)-1)]
+ #   parts = path.split("/")
+ #   lastpart = parts[-1]
+ #   firstpart = path[:(-len(lastpart)-1)]
 
-    print "DEBUG"
-    print lastpart
-    print firstpart
+ #   print "DEBUG"
+ #   print lastpart
+ #   print firstpart
 
-    if firstpart in topics:
-        print "Partial match"
-        return "select "+ lastpart +" from \"" + firstpart + "\";"
+#    if firstpart in topics:
+#        print "Partial match"
+#        return "select "+ lastpart +" from \"" + firstpart + "\";"
 
-    print "No match found"    
-    return ""
+#    print "No match found"    
+#    return ""
 
-def get_parts(path_url):
+#def get_parts(path_url):
     #Remove trailing slash
-    if path_url[-1] == "/":
-        path_url = path_url[:-1]
+#    if path_url[-1] == "/":
+#        path_url = path_url[:-1]
     
-    parts = path_url.split("/")
+#    parts = path_url.split("/")
 
-    return parts
+#    return parts
 
 def getSolarData(keys,Index = "solar-sites-index",DB = ProductionDB,Name = "sites"):
 
