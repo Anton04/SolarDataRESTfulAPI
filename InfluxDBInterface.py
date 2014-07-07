@@ -341,14 +341,16 @@ class InfluxDBlayer(InfluxDBClient):
     rows = 0
 
     #Save each row
-    for timestamp in DataFrame.index:
+    for r in range(0,DataFrame.shape[0]):
+      timestamp = DataFrame.index[r]
       column = ["time"]
       data = [int(timestamp)]
 
 
       #Iterate each value and remove NANs
-      for key in DataFrame.columns:
-        value = DataFrame.loc[timestamp,key]
+      for c in range(0,DataFrame.shape[1]):
+        key = DataFrame.columns[c]
+        value = DataFrame.iloc[r,c]
         #print value 
         #print timestamp,key
  
