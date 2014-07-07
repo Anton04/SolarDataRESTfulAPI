@@ -90,7 +90,13 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
     tail = request.args.get("tail",1000,type=int)
     since = request.args.get("since","now()-7d")
     until = request.args.get("until","now()",type=int)
-    lowercase = bool(request.args.get("lowercase",False,type=bool))
+    lowercase = request.args.get("lowercase","False",type=str)
+    lowercase = lowercase.lower()
+
+    if  lowercase == "true":
+        lowercase = True
+    else:
+        lowercase = False
 
     print "___"*10
     print tail, since, until, lowercase
@@ -165,7 +171,7 @@ def getSolarObject(uid,Index,DB,Name,subset=["_meta","_production"]):
     except NotFoundError:
         abort(404)
 
-#Get parameters in the request.
+    #Get parameters in the request.
     tail = request.args.get("tail",1000,type=int)
     since = request.args.get("since","now()-7d")
     until = request.args.get("until","now()",type=int)
