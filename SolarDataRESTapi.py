@@ -127,8 +127,8 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 reply["_production"].pop("name") 
 
                 if lowercase:
-                    reply["_production"]["columns"] = MakeDictLowerCase(reply["_production"]["columns"])
-            else:
+                    reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"]) 
+            else:           
                 reply["_production"] = {}
 
             reply["_production"]["UUID"] = siteUUID
