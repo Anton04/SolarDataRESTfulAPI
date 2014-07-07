@@ -104,7 +104,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=None):
         siteUUID = hit["_id"]
         
         #Add ID.
-        reply = {}
+        reply = {}  
         reply["UUID"] = siteUUID
 
         #Meta data.
@@ -117,7 +117,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=None):
             q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
             print q
             data = DB.query(q,'m')
-            reply["_production"] = data
+            reply["_production"] = data[0]
 
         if subset == None:
             replys.append(reply)
