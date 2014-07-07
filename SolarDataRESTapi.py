@@ -90,6 +90,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
     tail = request.args.get("tail",1000,type=int)
     since = request.args.get("since","now()-7d")
     until = request.args.get("until","now()",type=int)
+    lowercase = request.args.get("lowercase",False,type=bool)
 
     print "___"*10
     print tail, since, until
@@ -109,8 +110,12 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
         #Meta data.
         if "_meta" in subset:
+            
             reply["_meta"] = hit["_source"]
             reply["_meta"]["UUID"] = siteUUID
+
+            if lowercase:
+                reply["_meta"] = MakeDictLowerCase(reply["_meta"])
 
         #Production.
         if  "_production" in subset:
@@ -120,6 +125,9 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             if len(data) > 0:
                 reply["_production"] = data[0]
                 reply["_production"].pop("name") 
+
+                if lowercase:
+                    reply["_production"]["columns"] = MakeDictLowerCase(reply["_production"]["columns"])
             else:
                 reply["_production"] = {}
 
@@ -147,6 +155,28 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
         
 
     return {Name:replys, "_total_hits":res['hits']['total']}
+
+def MakeDictLowerCase(dictionary):
+    new_dict = {}
+
+    for key in dictionary:
+        value = dictionary[key]
+
+        #Convert key
+        if type(key) == str:            
+            new_key = key.lower()
+        else:
+            new_key = key
+
+        #Convert value
+        if type(value) == str:            
+            new_value = value.lower()
+        else:
+            new_value = value
+
+        new_dict[new_key] = new_value
+
+    return new_dict
 
 
 
