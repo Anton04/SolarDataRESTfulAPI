@@ -354,7 +354,7 @@ def getSolarData(keys,Index = "solar-sites-index",DB = ProductionDB,Name = "site
 
     #Avoid doing to large requests
     if tail > 10000:
-    abort(411)
+        abort(411)
 
     #Process the hits and requests additional data from influxDB
     replys = []
