@@ -116,9 +116,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
             if lowercase:
                 reply["_meta"] = MakeDictLowerCase(reply["_meta"])
-                print "Lowering..."
-                print reply["_meta"]
-                print MakeDictLowerCase(reply["_meta"])
+                
 
         #Production.
         if  "_production" in subset:
@@ -159,6 +157,80 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
     return {Name:replys, "_total_hits":res['hits']['total']}
 
+def getSolarObject(uid,Index,DB,Name,subset=["_meta","_production"]):
+
+    try:
+        hit = es.get(index=Index, doc_type="meta-data", id=uid)
+    except NotFoundError:
+        abort(404)
+
+#Get parameters in the request.
+    tail = request.args.get("tail",1000,type=int)
+    since = request.args.get("since","now()-7d")
+    until = request.args.get("until","now()",type=int)
+    lowercase = request.args.get("lowercase",False,type=bool)
+
+    print "___"*10
+    print tail, since, until, lowercase
+
+    #Avoid doing to large requests
+    if tail > 10000:
+        abort(411)
+
+    #Process the hits and requests additional data from influxDB
+
+    siteUUID = hit["_id"]
+    
+    #Add ID.
+    reply = {}  
+    reply["_UUID"] = siteUUID
+
+    #Meta data.
+    if "_meta" in subset:
+        
+        reply["_meta"] = hit["_source"]
+        reply["_meta"]["UUID"] = siteUUID
+
+        if lowercase:
+            reply["_meta"] = MakeDictLowerCase(reply["_meta"])
+            
+
+    #Production.
+    if  "_production" in subset:
+        q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+        print q
+        data = DB.query(q,'m')
+        if len(data) > 0:
+            reply["_production"] = data[0]
+            reply["_production"].pop("name") 
+
+            if lowercase:
+                reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"]) 
+        else:           
+            reply["_production"] = {}
+
+        reply["_production"]["UUID"] = siteUUID
+        
+
+    #Geography
+    if "_geography" in subset:
+        features = []
+        #Request data. 
+        #query.append({"match" : {index[f]:keys[f]} })
+        #totalquery = {"size":1000,"query": {"bool": {"must":query}  }}
+        #res = es.search(index=Index,doc_type="geography-data", body=totalquery)
+
+        reply["_geography"] = {}
+        reply["_geography"]["crs"] = {"type":"name","properties":{"name":"urn:ogc:def:crs:EPSG::3011"}}
+        reply["_geography"]["type"] = "FeatureCollection"
+        reply["_geography"]["features"] = features
+    
+    #Skip one level if its just one data source (not counting id). 
+    if len(reply) == 2:
+        replys = reply[reply.keys()[-1]]
+
+    return {Name:reply, "_total_hits":res['hits']['total']}
+
 def MakeDictLowerCase(dictionary):
     new_dict = {}
 
@@ -166,7 +238,7 @@ def MakeDictLowerCase(dictionary):
         value = dictionary[key]
 
         #Convert key
-        if type(key) == str:            
+        if type(key) == str or type(value) == unicode:            
             new_key = key.lower()
         else:
             new_key = key
@@ -185,7 +257,7 @@ def MakeListLowerCase(l):
     NewList = []
 
     for value in l:
-        if type(value) == str:
+        if type(value) == str or type(value) == unicode:
             new_value = value.lower()
         else:
             new_value = value
@@ -238,7 +310,28 @@ def get_area_data(path_url):
 
     return Response(json.dumps(getSolarObjects(parts,"solar-area-index",AreaDB,"areas")), mimetype='application/json')
 
+####################
+#   Get site by id  #
+####################
+@app.route('/solardata/site-by-id/<path:path_url>', methods = ['GET'])
+def get_site-by-id_data(path_url):
 
+    parts = get_parts(path_url)
+
+    print parts
+
+    if len(parts) > 2:
+        abort(404)
+
+    if parts[-1] == "_meta":
+        return Response(json.dumps(getSolarObject(parts[:-1],"solar-sites-index",ProductionDB,"sites",[parts[-1]])), mimetype='application/json') #Respons(json.dumps(getMetadataSites(parts[:-1])),  mimetype='application/json')
+    elif parts[-1] == "_production":
+        return Response(json.dumps(getSolarObject(parts[:-1],"solar-sites-index",ProductionDB,"sites",[parts[-1]])), mimetype='application/json') #Response(json.dumps(getProductionDataSites(parts[:-1])), mimetype='application/json')
+    elif parts[-1] == "_geography":
+        return "Not implemented"
+
+    return Response(json.dumps(getSolarObject(parts,"solar-sites-index",ProductionDB,"sites")), mimetype='application/json')
+        
 
 if __name__ == '__main__':
 
