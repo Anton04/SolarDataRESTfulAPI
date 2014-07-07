@@ -119,7 +119,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             data = DB.query(q,'m')
             if len(data) > 0:
                 reply["_production"] = data[0]
-                reply["_production"]["UUID"] = reply["_production"].pop("Name")
+                reply["_production"]["UUID"] = reply["_production"].pop("name")
             else:
                 reply["_production"] = {}
             
