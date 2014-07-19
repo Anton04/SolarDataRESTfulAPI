@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.config.update(dict(
   #  DATABASE=os.path.join(app.root_path, 'flaskr.db'),
 #     SERVER_NAME = "livinglab2.powerprojects.se:8080"
-     SERVER_NAME = "localhost:8088"
+#     SERVER_NAME = "localhost:8088"
 #    DEBUG=True
   #  SECRET_KEY='development key',
  #   USERNAME='admin',
@@ -89,7 +89,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
     #Get parameters in the request.
     tail = request.args.get("tail",1000,type=int)
     since = request.args.get("since","now()-7d")
-    until = request.args.get("until","now()",type=int)
+    until = request.args.get("until","now()")
     lowercase = request.args.get("lowercase","False",type=str)
     lowercase = lowercase.lower()
 
@@ -372,6 +372,6 @@ if __name__ == '__main__':
     #es = Elasticsearch()    
     es = ESinterface()
 
-    #app.run(host = "0.0.0.0")
+    #app.run(host = "0.0.0.0",port = 8088)
     app.run(debug = True)
     
