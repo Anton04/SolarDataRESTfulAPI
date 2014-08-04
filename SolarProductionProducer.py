@@ -16,161 +16,8 @@ reload(InfluxDBInterface)
 from ElasticsearchInterface import ESinterface
 import sys
 import mosquitto
+import os
 
-
-DataLink = InfluxDBInterface.InfluxDBInterface("influxInterfaceCredentials2.json")
-
-LogDB = DataLink.databases[u'SolarLogdata']
-ProductionDB = DataLink.databases[u'SolarProductionSites']
-
-
-es = ESinterface()
-
-
-# <codecell>
-
-
-
-def CalculateProduction(LogDB,ProductionDB):
-    
-    aWeek = 7*60*60*24
-    
-    Sites = LogDB.ListSeries()
-    
-    for Site in Sites:
-        CalculateEnergyCounterForSite(LogDB,ProductionDB,Site,aWeek)
-    
-            
-            
-            
-            
-            
-def CalculatePowerForSite(LogDB,ProductionDB,Site,PeriodSize):
-    print "Processing Power for %s" % Site
-    Properties = LogDB.GetPropertiesPartiallyMatchingAbutNotB(Site,"Pac","Tot")
-    print "\t%i inverters found" % len(Properties)
-    
-    LastUpdate = ProductionDB.GetLastTimestamp(Site,"Power")
-    
-    #No previous calculations done, start from the beginnnig of log series. 
-    if LastUpdate == None:
-        print "\tNo previous power data calculated for %s, starting from beginning." % Site
-        LastUpdate = LogDB.GetFirstTimestamp(Site)
-        
-        #No data.
-        if LastUpdate == None:
-            print "\tNo data found for %s" % Site
-            return
-    
-    else:
-        print "\tStarting calculations from: %i" % LastUpdate
-        
-    DataUntil = LogDB.GetLastTimestamp(Site)
-    PeriodStart = LastUpdate
-    
-    if DataUntil == PeriodStart:
-        print "\tUp to date!"
-    
-    #Loop trough timeseries
-    while PeriodStart < DataUntil:
-        df = LogDB.GetDataPeriod(Site,Properties,PeriodStart/1000,PeriodSize,10000)
-        if type(df) != pd.core.frame.DataFrame:
-            print "Missing data at: %i" % PeriodStart
-            PeriodStart += PeriodSize*1000
-            continue
-            
-        SumColsIntoCol(df,Properties,"Power")
-        row = ProductionDB.Save(Site,df[["Power"]])
-        print "\t%i rows of data saved to %s" % (row,Site)
-        PeriodStart += PeriodSize*1000
-        
-def CalculateEnergyCounterForSite(LogDB,ProductionDB,Site,PeriodSize):
-    print "Processing Energy counter for %s" % Site
-    Properties = LogDB.GetPropertiesPartiallyMatchingAbutNotB(Site,"POWc","Tot")
-    print "\t%i inverters found" % len(Properties)
-    
-    (LastUpdate,LastValue) = ProductionDB.GetLastValue(Site,"Energy")
-    
-    
-    
-    #No previous calculations done, start from the beginnnig of log series. 
-    if LastUpdate == None:
-        print "\tNo previous energy data calculated for %s, starting from beginning." % Site
-        
-        #Start from where we have raw data
-        LastUpdate = LogDB.GetFirstTimestamp(Site)
-        
-        #Counter start from 0 
-        LastValue = 0
-        
-        #No data.
-        if LastUpdate == None:
-            print "\tNo data found for %s" % Site
-            return
-    
-    else:
-        print "\tStarting calculations from: %s" % EpocToDate(LastUpdate/1000)
-        
-    DataUntil = LogDB.GetLastTimestamp(Site)
-    PeriodStart = LastUpdate
-    
-    if DataUntil == PeriodStart:
-        print "\tUp to date!"
-    
-    #Loop trough timeseries
-    while PeriodStart < DataUntil:
-        print "\tRunning period %s to %s" % (EpocToDate(PeriodStart/1000),EpocToDate((PeriodStart/1000+PeriodSize)))
-        df = LogDB.GetDataPeriod(Site,Properties,PeriodStart/1000,PeriodSize,10000)
-        if type(df) != pd.core.frame.DataFrame:
-            print "\t\tNo data"
-            PeriodStart += PeriodSize*1000
-            continue
-        else:
-            print "\t\t%i rows of data found." % df.shape[0]
-        
-        #Remove the reset every 24h.
-        df = df.apply(RemoveResets)
-        
-        #We need a continious series 
-        if df.index[0]*1000 != LastUpdate:
-            print "\t*** Sync error"
-            
-            print df.index[0]*1000 , LastUpdate
-            print df.index[-1]*1000
-            print df.shape
-            print PeriodStart
-            break
-        
-        SumColsIntoCol(df,Properties,"Energy")
-        
-        #Add previous counter value 
-        Offset = LastValue - df["Energy"].iloc[0]
-        df["Energy"] += Offset
-        
-        LastUpdate = df.index[-1]*1000
-        LastValue = df["Energy"].iloc[-1]
-        
-        #Drop duplicate row and save if data.
-        if df.shape[0] > 1:
-            row = ProductionDB.Save(Site,df.iloc[1:][["Energy"]])
-            print "\t%i rows of data saved to %s" % (row,Site)
-            
-        PeriodStart += PeriodSize*1000
-        
-    print "\tEnergy calculations finnished!"
-                
-def SumColsIntoCol(df,Properties,Name):
-    df[Name] = 0
-    
-    for p in Properties:
-        df[Name] += df[p]
-    
-                
-
-
-
-
-# <codecell>
 
 def EpocToDate(timestamp):
     return time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(timestamp))
@@ -263,6 +110,18 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
 
 if __name__ == '__main__':
 
+    #Parse arguments
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-h', dest='host', default="localhost", help='MQTT host send results to')
+    parser.add_argument('-t', dest='topic', default="", help='MQTT topic to process')
+    parser.add_argument('-m', dest='message', default="", help='MQTT message to process')
+
+    args = parser.parse_args()
+
+    #Get location of script
+    path = os.path.abspath(os.path.dirname(sys.argv[0]))
+
+
     #Set up MQTT
     ip = "localhost"
     port = 1883
@@ -286,13 +145,19 @@ if __name__ == '__main__':
     mqtt.publish(topic = "system/"+ prefix, payload="Updating", qos=1, retain=True)
 
 
-    Sites = LogDB.ListSeries()
+    #Init resources 
+    DataLink = InfluxDBInterface.InfluxDBInterface(path + "/" + "influxInterfaceCredentials2.json")
+    LogDB = DataLink.databases[u'SolarLogdata']
+    ProductionDB = DataLink.databases[u'SolarProductionSites']
+    #es = ESinterface()
 
+    #Init vars
+    Sites = LogDB.ListSeries()
     now = time.time()
-        
+    
+    #Loop throug all sites. 
     for Site in Sites:
      
-    #Site = "46d55815-f927-459f-a8e2-8bbcd88008ee"
         print "Processing %s " % Site 
         
         sys.stdout.flush()
