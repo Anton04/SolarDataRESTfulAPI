@@ -15,6 +15,7 @@ import time
 reload(InfluxDBInterface)
 from ElasticsearchInterface import ESinterface
 import sys
+import mosquitto
 
 
 DataLink = InfluxDBInterface.InfluxDBInterface("influxInterfaceCredentials2.json")
@@ -262,6 +263,28 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
 
 if __name__ == '__main__':
 
+    #Set up MQTT
+    ip = "localhost"
+    port = 1883
+    user = "driver"
+    password = "1234"
+    prefix = "SolarProductionProducer"
+    
+    mqtt=mosquitto.Mosquitto("ProductionProducer")
+    mqtt.prefix = prefix
+    mqtt.ip = ip
+    mqtt.port = port
+    #mqtt.clientId = clientId
+    mqtt.user = user
+    mqtt.password = password
+                
+    if mqtt != None:
+        mqtt.username_pw_set(user,password)
+    
+    #mqtt.will_set( topic =  "system/" + prefix, payload="Idle", qos=1, retain=True)
+    mqtt.connect(ip,keepalive=10)
+    mqtt.publish(topic = "system/"+ prefix, payload="Updating", qos=1, retain=True)
+
 
     Sites = LogDB.ListSeries()
 
@@ -291,5 +314,13 @@ if __name__ == '__main__':
     print "Done"
 
     sys.stdout.flush()
+
+    mqtt.connect(ip,keepalive=10)
+    #mqtt.publish(topic = "solardata/production/at", payload=str((TrailTime,LeadTime)), qos=1, retain=True) 
+    mqtt.publish(topic = "solardata/production/lastupdate", payload=now, qos=1, retain=True)    
+    mqtt.publish(topic = "system/"+ prefix, payload="Idle", qos=1, retain=True)
+    time.sleep(0.5)
+    
+    del mqtt
 
 
