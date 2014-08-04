@@ -3,7 +3,7 @@
 
 # <codecell>
 
-cd git/SolarDataRESTfulAPI/
+#cd git/SolarDataRESTfulAPI/
 
 # <codecell>
 
@@ -260,7 +260,7 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
 # <codecell>
 
 if __name__ == '__main__':
-    
+
 
     Sites = LogDB.ListSeries()
 
