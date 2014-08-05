@@ -1,11 +1,5 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
-# <nbformat>3.0</nbformat>
-
-# <codecell>
-
-cd git/SolarDataRESTfulAPI/
-
-# <codecell>
 
 import json
 import pandas as pd
@@ -20,16 +14,6 @@ import mosquitto
 import os
 import argparse
 
-DataLink = InfluxDBInterface.InfluxDBInterface("influxInterfaceCredentials2.json")
-
-LogDB = DataLink.databases[u'SolarLogdata']
-ProductionDB = DataLink.databases[u'SolarProductionSites']
-AreaDB = DataLink.databases[u'SolarProductionAreas']
-Test = DataLink.databases[u'test']
-
-es = ESinterface()
-
-# <codecell>
 
 def AreaProductionAlgorithm(SitesProductionBuf,sites,PowerStreams,EnergyStreams):
     dfPower = SitesProductionBuf.Data[PowerStreams]
@@ -78,6 +62,7 @@ def CalculateAreaProduction(area,Recalculate=False):
     global AreaProduction2
     global debugName
     
+    print "\tSearching for production sites: ",
     sites = es.GetHitsMatchingPropDict("solar-sites-index","meta-data",json.loads(area["query"]))
     
     if sites.shape[1] == 0:
@@ -96,6 +81,7 @@ def CalculateAreaProduction(area,Recalculate=False):
         #Recalculate last week and forward. 
         SitesProductionBuf.Seek(time.time() - (14 * 24 * 3600))
     
+    print "\tprocessing             \r",
     
     while not SitesProductionBuf.EOF:
         AreaProduction = AreaProductionAlgorithm(SitesProductionBuf,sites,PowerStreams,EnergyStreams)
@@ -108,6 +94,7 @@ def CalculateAreaProduction(area,Recalculate=False):
             break
         SitesProductionBuf.Next()
 
+    print "\tDone!             \r",    
 # <codecell>
 
 if __name__ == "__main__":
@@ -146,41 +133,34 @@ if __name__ == "__main__":
     mqtt.connect(ip,keepalive=10)
     mqtt.publish(topic = "system/"+ prefix, payload="Updating", qos=1, retain=True)
     
+    #Setup enviroment
+    DataLink = InfluxDBInterface.InfluxDBInterface(path + "/" + "influxInterfaceCredentials2.json")
+
+    LogDB = DataLink.databases[u'SolarLogdata']
+    ProductionDB = DataLink.databases[u'SolarProductionSites']
+    AreaDB = DataLink.databases[u'SolarProductionAreas']
+    Test = DataLink.databases[u'test']
+
+    es = ESinterface()
+
+
+    print "Searching area definions... ",
     areas = es.GetHitsAsDataFrame("solar-area-index","meta-data")
     
     #areas = areas.iloc[:,-7:]
+
+    now = time.time()
     
     for id in areas.columns: 
-        print "Processing %s" % areas[id]["Name"]
-        print "..."
-        time.sleep(0.5)
+        print "Area: %s" % areas[id]["Name"]
+        #print "processing             \r",
+        #time.sleep(0.5)
         CalculateAreaProduction(areas[id])
     
     print "All done!"
     
     mqtt.connect(ip,keepalive=10)
     #mqtt.publish(topic = "solardata/production/at", payload=str((TrailTime,LeadTime)), qos=1, retain=True) 
-    mqtt.publish(topic = "solardata/area-production/lastupdate", payload=now, qos=1, retain=True)    
+    mqtt.publish(topic = "solardata/area-production/lastrun", payload=now, qos=1, retain=True)    
     mqtt.publish(topic = "system/"+ prefix, payload="Idle", qos=1, retain=True)
     
-
-
-# <codecell>
-
-AreaProduction2
-
-# <codecell>
-
-print "Hej hå"
-
-# <codecell>
-
-time.time()
-
-# <codecell>
-
-hits = es.GetHitsMatchingPropDict("solar-sites-index","meta-data",{"Operator":"SLB"})
-
-# <codecell>
-
-
