@@ -124,15 +124,21 @@ class InfluxFeedLTSInterface(InfluxDBClient):
       column = ["time"]
       data = [int(timestamp*1000)]
       
-      
-      #Iterate each value and remove NANs
+
+      #Iterate each value and remove NANs and fix floats.
       for j in range(1,df.shape[1]):
-        if numpy.isnan(df.iloc[i,j]):
-          continue
-          
+        value = df.iloc[i,j]
+        
+        #Float
+        if type(value) == str:
+            if value.find(",") != -1:
+                value = float(value.replace(",","."))
+        #Nan
+        elif numpy.isnan(value):
+            continue
         #Add key
         column.append(df.keys()[j])
-        data.append(df.iloc[i,j])
+        data.append(value)
 
       #If there where only nan on this row continue to next row. 
       if len(column) == 1:
