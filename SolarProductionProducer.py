@@ -65,10 +65,11 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
             dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,PreviousLastValidValueTime,100)
         else:    
             dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,100)
+            print "No previous data starting from first log data."
     else:  
         #Get a log data chunck
         dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,100)
-        print "No previous data starting from first log data."
+        
     
     while (dfLog.shape[0] > 1):
     
