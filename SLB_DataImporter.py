@@ -12,6 +12,7 @@ import mosquitto
 from IPython.display import clear_output
 import sys
 from ElasticsearchInterface import ESinterface
+import os
 
 
 #Change to elasticsearch     
