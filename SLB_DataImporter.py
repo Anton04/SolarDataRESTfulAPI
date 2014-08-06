@@ -185,7 +185,7 @@ def Update():
     SiteIDs = LoadSLBSiteIds(es)
     #SiteIDs = LoadSiteIds("/root/git/SolarDataRESTfulAPI/SiteIDs.json")
     
-    Feeds = InfluxFeedLTSInterface()
+    Feeds = InfluxFeedLTSInterface(path + "/" + "influx2.json")
     
     #Get all data until now + 1h
     StopTime = time.time() + 3600
@@ -279,7 +279,10 @@ def Update():
 
 # <codecell>
 
-if True: # __name__ == "__main__":
+if __name__ == "__main__":
+
+    #Get location of script
+    path = os.path.abspath(os.path.dirname(sys.argv[0]))
     
     es = ESinterface()
 
