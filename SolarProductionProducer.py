@@ -50,21 +50,25 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
     if Recalculate == False:
         (PreviousLastValidValueTime,PreviousLastValidValue) = ProductionDB.GetLastValue(Site,"Energy")
         TimestampP = ProductionDB.GetLastTimestamp(Site,"Power")
+
+        if (PreviousLastValidValueTime != None and TimestampP != None):
         
-        #The start from where we have both power and energy values. 
-        if TimestampP < PreviousLastValidValueTime:
-            PreviousLastValidValueTime = TimestampP
-            
-        PreviousLastValidValueTime = PreviousLastValidValueTime / 1000
-            
-        print "\tResuming calculation from: %s" % EpocToDate(PreviousLastValidValueTime)
-            
-        #Get last data. 
-        dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,PreviousLastValidValueTime,100)
-    
+            #The start from where we have both power and energy values. 
+            if TimestampP < PreviousLastValidValueTime:
+                PreviousLastValidValueTime = TimestampP
+                
+            PreviousLastValidValueTime = PreviousLastValidValueTime / 1000
+                
+            print "\tResuming calculation from: %s" % EpocToDate(PreviousLastValidValueTime)
+                
+            #Get last data. 
+            dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,PreviousLastValidValueTime,100)
+        else:    
+            dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,100)
     else:  
         #Get a log data chunck
         dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,100)
+        print "No previous data starting from first log data."
     
     while (dfLog.shape[0] > 1):
     
