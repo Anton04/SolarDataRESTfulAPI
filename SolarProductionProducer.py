@@ -62,13 +62,13 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
             print "\tResuming calculation from: %s" % EpocToDate(PreviousLastValidValueTime)
                 
             #Get last data. 
-            dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,PreviousLastValidValueTime,100)
+            dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,PreviousLastValidValueTime,1000)
         else:    
-            dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,100)
+            dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,1000)
             print "No previous data starting from first log data."
     else:  
         #Get a log data chunck
-        dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,100)
+        dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,1000)
         
     
     while (dfLog.shape[0] > 1):
