@@ -174,7 +174,7 @@ def getSolarObject(uid,Index,DB,Name,subset=["_meta","_production"]):
     #Get parameters in the request.
     tail = request.args.get("tail",1000,type=int)
     since = request.args.get("since","now()-7d")
-    until = request.args.get("until","now()",type=int)
+    until = request.args.get("until","now()")
     lowercase = request.args.get("lowercase","False",type=str)
     lowercase = lowercase.lower()
 
