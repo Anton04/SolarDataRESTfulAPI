@@ -1,7 +1,6 @@
- #!/bin/bash
+#!/bin/bash
  # /etc/init.d/mqtt-stage
  # version 0.3.9 2014-10-25 (YYYY-MM-DD)
- 
  ### BEGIN INIT INFO
  # Provides:   nodered
  # Required-Start: $local_fs $remote_fs screen-cleanup
@@ -21,12 +20,15 @@
  APP_PATH='/home/iot/repos/SolarDataRESTfulAPI'
  HISTORY=1024
  INVOCATION="python $SERVICE" 
+ SCREEN_SESSION='SolarRestApi'
  ME=`whoami`
 
  as_user() {
    if [ "$ME" = "$USERNAME" ] ; then
+     echo "Running: bash -c $1"
      bash -c "$1"
    else
+     echo  "Running: su - $USERNAME -c \"$1\""
      su - $USERNAME -c "$1"
    fi
  }
@@ -38,7 +40,11 @@
    else
      echo "Starting $SERVICE..."
      cd $APP_PATH
-     as_user "cd $APP_PATH && screen -h $HISTORY -dmS nodered $INVOCATION"
+
+     CMD="cd $APP_PATH && screen -h $HISTORY -dmS $SCREEN_SESSION $INVOCATION"
+ 
+     as_user "$CMD"
+     #as_user "cd $APP_PATH && screen -h $HISTORY -dmS $SCREEN_SESSION $INVOCATION"
      sleep 7
      if pgrep -u $USERNAME -f $SERVICE > /dev/null
      then
