@@ -4,7 +4,7 @@ import InfluxDBInterface
 import json
 #from elasticsearch import Elasticsearch
 from ElasticsearchInterface import ESinterface
-import os
+import os, sys
 
 app = Flask(__name__)
 
@@ -355,6 +355,8 @@ def get_site_by_id_data(path_url):
 
 if __name__ == '__main__':
 
+    
+
     #import InfluxDBInterface
 
     #datalink = InfluxDBInterface.InfluxDBInterface("influxInterfaceCredentials.json")
@@ -372,6 +374,8 @@ if __name__ == '__main__':
     #es = Elasticsearch()    
     es = ESinterface()
 
-    #app.run(host = "0.0.0.0",port = 8088)
-    app.run(debug = True)
-    
+    if "debug" in sys.argv:
+        print "Running in debug mode!"
+        app.run(debug = True)
+    else:
+	app.run(host = "0.0.0.0",port = 8088)
