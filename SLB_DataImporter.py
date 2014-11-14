@@ -44,8 +44,8 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   stoptime = time.strftime("%y%m%d%H%M",time.localtime(stop))
   url = "http://slb.nu/soldata/index.php?KEY=%s&start=%s&stop=%s" %(slb_id,starttime,stoptime)
 
-  df = pandas.read_csv(url,sep = ";",parse_dates=[[0, 1]],skiprows=8, header = None ,infer_datetime_format = True,na_values = ["     ","    ","  "," ",""])
-  cl = pandas.read_csv(url,sep = ";", header = 6,error_bad_lines= False,na_values = [""],nrows=1)
+  df = pandas.read_csv(url,sep = ";",parse_dates=[[0, 1]],skiprows=9, header = None ,infer_datetime_format = True,na_values = ["     ","    ","  "," ",""])
+  cl = pandas.read_csv(url,sep = ";", header = 7,error_bad_lines= False,na_values = [""],nrows=1)
 
   #Align keys to data and rename time col. 
   cols = cl.keys()
