@@ -110,7 +110,7 @@ class ResampleFeedBuffer(FeedBuffer):
     self.OutputSize = Size
     self.OutputBuffer = None
 
-  def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,,Type=None):
+  def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,Type=None):
     self.OutputColumns[Name] = (RateStreamSource,CounterStreamSource,Type)
 
 
@@ -219,7 +219,7 @@ class FeedBuffer():
 
     RowsToBeDecompressed = self.Feed.DataStreams.columns[list(self.Feed.DataStreams.loc["Compressed"].values)]
 
-    #Update first row with missing data. 
+    #Update first row with missing data.
     #self.Data.iloc[0] = self.NextValues.loc["Value"].values
     for Value in self.Values:
         self.Data.loc[self.Data.index[0],Value] = self.Values[Value].Value
