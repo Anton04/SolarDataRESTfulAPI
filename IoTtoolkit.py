@@ -315,7 +315,7 @@ class Feed():
     self.Pointer = None
     self.Buffer = None
 
-  def GetResampleBuffer(self,StartTime = 0, Intervall, RateStream = None, CounterStream = None):
+  def GetResampleBuffer(self,StartTime = 0, Interval=3600, RateStream = None, CounterStream = None):
 
       #for
 
