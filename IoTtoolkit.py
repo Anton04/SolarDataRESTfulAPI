@@ -302,7 +302,7 @@ class FeedBuffer():
 
   #def _repr_pretty_(self):
   #  return self.Data._repr_pretty_()
-            
+
 
 
 #Class implementing a feed     
@@ -315,11 +315,11 @@ class Feed():
     self.Pointer = None
     self.Buffer = None
 
-  def Resample(self,StartTime = 0, Intervall, RateStream = None, CounterStream = None):
+  def GetResampleBuffer(self,StartTime = 0, Intervall, RateStream = None, CounterStream = None):
 
-      for
+      #for
 
-      return df
+      return
 
   def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
     if Name == None:
