@@ -100,6 +100,57 @@ class Universe:
   def SaveFeedsToFile(self,FileName):
     return
 
+class ResampleFeedBuffer(FeedBuffer):
+  def __init__(self,Feed,Size,Period,Type="THRESH_HOLD",AutoDecompress=True):
+
+    FeedBuffer.__init__(self,Feed,10,AutoDecompress)
+    self.Type = Type
+    self.Period = Period
+    self.OutputColumns = {}
+    self.OutputSize = Size
+    self.OutputBuffer = None
+
+  def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,,Type=None):
+    self.OutputColumns[Name] = (RateStreamSource,CounterStreamSource,Type)
+
+
+  def Seek(self,Position = 0):
+    #Load a small buffer.
+    FeedBuffer.Seek(self,Position)
+
+    #Interpolate.
+
+
+  def Next(self):
+    print "not implemented"
+    #Load raw buffer
+    #self.Data = self.Feed.LoadBuffer(self.EndPosition,self.Size)
+
+
+
+
+    #Update position
+    self.Position = self.EndPosition
+    self.Values = self.NextValues
+
+    #New position
+    (self.EndPosition,self.NextValues) = self.NextPointerAndValues()
+
+    #Decompress
+    if self.AutoDecompress:
+      self.Decompress()
+
+    #Check if we are at the end of the feed.
+    if self.Position == self.Data.index[-1]:
+      self.EOF = True
+      return None
+
+    return self.Data
+
+  def Save(self,database,series):
+      return
+
+
 
 class FeedBuffer():
   def __init__(self,Feed,Size,AutoDecompress=True):
@@ -115,7 +166,7 @@ class FeedBuffer():
   def Next(self):
 
     #Load raw buffer
-    self.Data = self.Feed.LoadBuffer(self.EndPosition,self.Size)
+    Data = self.Feed.LoadBuffer(self.EndPosition,self.Size)
 
     #Update position
     self.Position = self.EndPosition
@@ -128,10 +179,12 @@ class FeedBuffer():
     if self.AutoDecompress:
       self.Decompress()
 
-    #Check if we are at the end of the feed. 
+    #Check if we are at the end of the feed.
     if self.Position == self.Data.index[-1]:
       self.EOF = True
       return None
+
+    self.Data = Data
 
     return self.Data
 
@@ -166,8 +219,10 @@ class FeedBuffer():
 
     RowsToBeDecompressed = self.Feed.DataStreams.columns[list(self.Feed.DataStreams.loc["Compressed"].values)]
 
-    #Update first row 
-    self.Data.iloc[0] = self.NextValues.loc["Value"].values
+    #Update first row with missing data. 
+    #self.Data.iloc[0] = self.NextValues.loc["Value"].values
+    for Value in self.Values:
+        self.Data.loc[self.Data.index[0],Value] = self.Values[Value].Value
 
     #Forwardfill the rest
     self.Data[RowsToBeDecompressed] = self.Data[RowsToBeDecompressed].ffill()
@@ -206,7 +261,7 @@ class FeedBuffer():
 
     df = self.Feed.GetValuesAt(Position)
 
-    #Align columns with the stream decriptor. 
+    #Align columns with the stream descriptor.
     df = df.reindex_axis(self.Feed.DataStreams.columns, axis=1)
 
     StartsAt = df.loc["Timestamp"].min()
@@ -248,7 +303,19 @@ class FeedBuffer():
   #def _repr_pretty_(self):
   #  return self.Data._repr_pretty_()
             
-    
+#Class implementing an m
+class MeterEventFeed(Feed)
+    def __init__(self,Universe = None):
+        Feed.__init__(self,Universe)
+
+    def AddRateAndCounterStreams(self,LabelRateStream,LabelCounterStream,Database = None, Serie = None,Properties = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
+        self.AddSeveralStreamsWithinSameSource(self,Database = None, Serie = None,Properties = [LabelRateStream,LabelCounterStream],Timeout = None,TOMarker = None, Type = None,Compressed = True)
+        self.RateStream = LabelRateStream
+        self.CounterStream = LabelCounterStream
+
+
+
+
 #Class implementing a feed     
 class Feed():
   def __init__(self,Universe = None):
@@ -258,6 +325,12 @@ class Feed():
     self.DataStreams = pd.DataFrame(index = ["Database","Serie","Property","Timeout","TOMarker","Type","Compressed"])
     self.Pointer = None
     self.Buffer = None
+
+  def Resample(self,StartTime = 0, Intervall, RateStream = None, CounterStream = None):
+
+      for
+
+      return df
 
   def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
     if Name == None:
@@ -363,6 +436,7 @@ class Feed():
     Names = self.NameDict.copy() 
 
     for Key in self.NameDict:
+      Names[Key] = self.NameDict[Key][:]
       Names[Key] = self.NameDict[Key][:]
 
 
