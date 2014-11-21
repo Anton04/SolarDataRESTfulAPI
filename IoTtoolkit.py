@@ -303,17 +303,6 @@ class FeedBuffer():
   #def _repr_pretty_(self):
   #  return self.Data._repr_pretty_()
             
-#Class implementing an m
-class MeterEventFeed(Feed)
-    def __init__(self,Universe = None):
-        Feed.__init__(self,Universe)
-
-    def AddRateAndCounterStreams(self,LabelRateStream,LabelCounterStream,Database = None, Serie = None,Properties = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
-        self.AddSeveralStreamsWithinSameSource(self,Database = None, Serie = None,Properties = [LabelRateStream,LabelCounterStream],Timeout = None,TOMarker = None, Type = None,Compressed = True)
-        self.RateStream = LabelRateStream
-        self.CounterStream = LabelCounterStream
-
-
 
 
 #Class implementing a feed     
