@@ -166,7 +166,7 @@ class FeedBuffer():
   def Next(self):
 
     #Load raw buffer
-    Data = self.Feed.LoadBuffer(self.EndPosition,self.Size)
+    self.Data = self.Feed.LoadBuffer(self.EndPosition,self.Size)
 
     #Update position
     self.Position = self.EndPosition
@@ -183,8 +183,6 @@ class FeedBuffer():
     if self.Position == self.Data.index[-1]:
       self.EOF = True
       return None
-
-    self.Data = Data
 
     return self.Data
 
