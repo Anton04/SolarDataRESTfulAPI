@@ -336,9 +336,9 @@ class ResampleFeedBuffer(FeedBuffer):
             StreamValue = float("NaN")
           #  (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,TimeStamp)
 
-          Values.loc[TimeStamp,Name] = StreamValue
-          Times[TimeStamp,Name] = StreamTime
-
+          Values.loc[int(TimeStamp),Name] = StreamValue
+          Times.loc[int(TimeStamp),Name] = StreamTime
+    
           TimeStamp += Period
 
 
