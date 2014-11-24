@@ -92,6 +92,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
     until = request.args.get("until","now()")
     lowercase = request.args.get("lowercase","False",type=str)
     lowercase = lowercase.lower()
+    period = request.args.get("period",0,type=int)
 
     if  lowercase == "true":
         lowercase = True
@@ -127,19 +128,25 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
         #Production.
         if  "_production" in subset:
-            q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
-            print q
-            data = DB.query(q,'m')
-            if len(data) > 0:
-                reply["_production"] = data[0]
-                reply["_production"].pop("name") 
 
-                if lowercase:
-                    reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"]) 
-            else:           
-                reply["_production"] = {}
+            if period == 0:
+                q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+                print q
+                data = DB.query(q,'m')
+                if len(data) > 0:
+                    reply["_production"] = data[0]
+                    reply["_production"].pop("name")
 
-            reply["_production"]["UUID"] = siteUUID
+                    if lowercase:
+                        reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
+                else:
+                    reply["_production"] = {}
+
+                reply["_production"]["UUID"] = siteUUID
+            else:
+                print "Rescale"
+
+
             
 
         #Geography
