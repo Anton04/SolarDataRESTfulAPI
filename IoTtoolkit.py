@@ -290,24 +290,25 @@ class ResampleFeedBuffer(FeedBuffer):
     self.ResampleStart = Start
     self.ResampleStop = (Samples*Period)+Start
 
-    (Values,Times) = self.ResampleFrames(Start,self.ResampleStop,Period)
-
-    self.ResampleValues = Values
-    self.ResampleTimes = Times
 
 
-  def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,Type=None):
-    self.ResampleColumns[Name] = (RateStreamSource,CounterStreamSource,Type)
+
+  def AddResampleColumn(self,Name,Inputs,Function):
+    self.ResampleColumns[Name] = (Inputs,Function)
     return
 
   def ResampleFrames(self,Start,Stop,Period):
 
+        self.ResampleStart = Start
+        self.ResampleStop = Stop
+        self.ResamplePeriod = Period
+
         Values = pd.DataFrame(columns = self.Feed.DataStreams.columns)
         Times = pd.DataFrame(columns = self.Feed.DataStreams.columns)
 
-        TimeStamp = Start
+        TimeStamp = Start - Period
 
-        while(TimeStamp <= Stop):
+        while(TimeStamp <= Stop + Period):
 
             #Loop through all.
             for (Name,Properties) in self.Feed.DataStreams.iteritems():
@@ -330,6 +331,36 @@ class ResampleFeedBuffer(FeedBuffer):
 
         return Values,Times
 
+    def Interpolate(self):
+
+        (Values,Times) = self.ResampleFrames(Start,self.ResampleStop,Period)
+
+        self.ResampleValuesBefore = Values
+        self.ResampleTimesBefore = Times
+
+        Data = pd.DataFrame(columns = self.ResampleColumns.keys())
+
+        for item in self.ResampleColumns:
+
+            Data[item] = ResampleColumns[item][1](self,ResampleColumns[item][0]).iloc[1:-1]
+
+        self.Interpolation = Data
+
+        return Data
+
+
+
+    def InterpolatePowerFromCounter(ResampleObj,Inputs):
+
+        s1 = ResampleObj.ResampleValuesBefore[Inputs]
+        return s1.iloc[:,1].diff().shift(-1)
+
+    def InterpolateCounter(ResampleObj,Inputs):
+
+        s1 = ResampleObj.ResampleValuesBefore[Inputs]
+        s2 = ResampleObj.ResampleTimesBefore[Inputs]
+
+        return (s2 < 3600).replace(False,float("nan")) * s1
 
 
 
