@@ -290,7 +290,7 @@ class ResampleFeedBuffer(FeedBuffer):
     self.ResampleStart = Start
     self.ResampleStop = (Samples*Period)+Start
 
-    (Value,Times) = self.ResampleFrames(Start,self.ResampleStop,Period)
+    (Values,Times) = self.ResampleFrames(Start,self.ResampleStop,Period)
 
     self.ResampleValues = Values
     self.ResampleTimes = Times
