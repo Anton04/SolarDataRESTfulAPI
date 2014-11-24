@@ -155,26 +155,31 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 q= ("select Min(Energy) as Energy from %s group by time(%s) where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
                 print q
                 print "__"*10
-                res = ProductionDB.QueryDf(q,'s')
+                res = DB.QueryDf(q,'s')
 
-                res["Power"] = res["Energy"].diff().shift(-1)
-                res["Timestamp"] = res.index.to_series()
+                if res == None:
+                    reply["_production"] = {}
 
-                unpack = res.to_dict("list")
-                t = unpack["Timestamp"]
-                e = unpack["Energy"]
-                p = unpack["Power"]
+                else:
 
-                points = []
+                    res["Power"] = res["Energy"].diff().shift(-1)
+                    res["Timestamp"] = res.index.to_series()
 
-                for i in range(O,len(t)):
-                    points.append([e[i],p[i],t[i]])
+                    unpack = res.to_dict("list")
+                    t = unpack["Timestamp"]
+                    e = unpack["Energy"]
+                    p = unpack["Power"]
 
-                reply["_production"] = {"points":points}
-                reply["_production"]["columns"] = list(res.columns)
+                    points = []
 
-                if lowercase:
-                        reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
+                    for i in range(O,len(t)):
+                        points.append([e[i],p[i],t[i]])
+
+                    reply["_production"] = {"points":points}
+                    reply["_production"]["columns"] = list(res.columns)
+
+                    if lowercase:
+                            reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
 
 
 
