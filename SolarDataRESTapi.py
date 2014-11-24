@@ -94,7 +94,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
     until = request.args.get("until","now()")
     lowercase = request.args.get("lowercase","False",type=str)
     lowercase = lowercase.lower()
-    period = request.args.get("period",0,type=int)
+    period = request.args.get("period","0",type=str)
 
     if  lowercase == "true":
         lowercase = True
@@ -131,40 +131,57 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
         #Production.
         if  "_production" in subset:
 
-            if period == 0:
+            if period == "0":
                 q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
-                print q
-                data = DB.query(q,'m')
-                if len(data) > 0:
-                    reply["_production"] = data[0]
-                    reply["_production"].pop("name")
-
-                    if lowercase:
-                        reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
-                else:
-                    reply["_production"] = {}
-
-                reply["_production"]["UUID"] = siteUUID
+            elif period == "daily":
+                pass
+            elif period == "montly":
+                pass
+            elif period == "yearly":
+                pass
             else:
-                print "Rescale"
+                q= ("select max(Energy) as Energy and DIFFERENCE(Energy) as Power from %s grouped by %s where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
+
+            print q
+            data = DB.query(q,'m')
+
+            
+
+            if len(data) > 0:
+                reply["_production"] = data[0]
+                reply["_production"].pop("name")
+
+                if lowercase:
+                    reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
+            else:
+                reply["_production"] = {}
+
+            reply["_production"]["UUID"] = siteUUID
+            #else:
 
 
-                SiteFeed = IoTtoolkit.Feed()
-
-                SiteFeed.AddStream("Power",DB,siteUUID,"Power",Single=False)
-                SiteFeed.AddStream("Energy",DB,siteUUID,"Energy",Compressed=True)
+                #select max(Energy) as Energy from 46d55815-f927-459f-a8e2-8bbcd88008ee  group by time(1h) where time > now() - 60h limit 1000;
 
 
-                Resample = SiteFeed.GetResampleBuffer(int(since),int(period),int(tail))
+             #   print "Rescale"
 
-                Resample.AddResampleColumn("Power","Energy",Resample.InterpolatePowerFromCounter)
-                Resample.AddResampleColumn("Energy","Energy",Resample.InterpolateCounter)
 
-                df = Resample.Interpolate()
+              #  SiteFeed = IoTtoolkit.Feed()
 
-                reply["_production"] = df.to_dict()
-                reply["_production"]["UUID"] = siteUUID
-                print time.time()
+               # SiteFeed.AddStream("Power",DB,siteUUID,"Power",Single=False)
+               # SiteFeed.AddStream("Energy",DB,siteUUID,"Energy",Compressed=True)
+
+
+                #Resample = SiteFeed.GetResampleBuffer(int(since),int(period),int(tail))
+
+                #Resample.AddResampleColumn("Power","Energy",Resample.InterpolatePowerFromCounter)
+                #Resample.AddResampleColumn("Energy","Energy",Resample.InterpolateCounter)
+
+            #    df = Resample.Interpolate()
+
+             #   reply["_production"] = df.to_dict()
+              #  reply["_production"]["UUID"] = siteUUID
+               # print time.time()
 
             
 
