@@ -290,7 +290,10 @@ class ResampleFeedBuffer(FeedBuffer):
     self.ResampleStart = Start
     self.ResampleStop = (Samples*Period)+Start
 
-    self.ResampleFrames(Start,self.ResampleStop,Period)
+    (Value,Times) = self.ResampleFrames(Start,self.ResampleStop,Period)
+
+    self.ResampleValues = Values
+    self.ResampleTimes = Times
 
 
   def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,Type=None):
@@ -337,8 +340,8 @@ class ResampleFeedBuffer(FeedBuffer):
           #  (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,TimeStamp)
 
           Values.loc[int(TimeStamp),Name] = StreamValue
-          Times.loc[int(TimeStamp),Name] = StreamTime
-    
+          Times.loc[int(TimeStamp),Name] = TimeStamp - StreamTime
+
           TimeStamp += Period
 
 
