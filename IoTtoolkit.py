@@ -280,7 +280,7 @@ class FeedBuffer():
 class ResampleFeedBuffer(FeedBuffer):
   def __init__(self,Feed,Start,Period,Samples):
 
-    FeedBuffer.__init__(self,Feed,10,AutoDecompress=False)
+    FeedBuffer.__init__(self,Feed,10,AutoDecompress=True)
 
     #self.Type = Type
     self.ResamplePeriod = Period
@@ -322,9 +322,12 @@ class ResampleFeedBuffer(FeedBuffer):
                         Values.loc[int(TimeStamp),Name] = StreamValue
                         Times.loc[int(TimeStamp),Name] = TimeStamp - StreamTime
 
-                        print StreamValue,StreamTime
+                        print "*" * 10
+                        print TimeStamp
                         print Name
-                        print Properties
+                        print StreamValue,StreamTime
+                        print "____"
+                        print Values
 
 
                   TimeStamp += Period
