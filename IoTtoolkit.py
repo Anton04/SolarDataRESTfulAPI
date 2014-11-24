@@ -348,7 +348,7 @@ class ResampleFeedBuffer(FeedBuffer):
                   TimeStamp += Period
 
 
-    return Values,Times
+        return Values,Times
 
 
   def Interpolate(self,PointInTime,values1,values2):
