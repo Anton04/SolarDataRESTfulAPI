@@ -136,7 +136,13 @@ class InfluxDBlayer(InfluxDBClient):
       df.columns = res["columns"]
       df.index = df["time"]
 
-      df = df.drop(["time","sequence_number"],1)
+      try:
+        df = df.drop(["sequence_number"],1)
+      except:
+          pass
+
+      df = df.drop(["time"],1)
+
       df = df.reset_index().groupby(df.index.names).first()
 
       df.series = res["name"]
@@ -432,6 +438,8 @@ class InfluxDBlayer(InfluxDBClient):
       rows += 1
 
     return rows
+
+
 
 #Class implementing access to influxDB    
 class InfluxDBInterface():
