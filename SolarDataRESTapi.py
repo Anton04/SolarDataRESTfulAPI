@@ -133,6 +133,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
             if period == "0":
                 q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+                print q
                 data = DB.query(q,'m')
 
                 if len(data) > 0:
@@ -152,6 +153,8 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 pass
             else:
                 q= ("select Min(Energy) as Energy from %s group by time(%s) where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
+                print q
+                print "__"*10
                 res = ProductionDB.QueryDf(q,'s')
 
                 res["Power"] = res["Energy"].diff().shift(-1)
@@ -174,7 +177,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                         reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
 
 
-            print q
+
 
 
 
