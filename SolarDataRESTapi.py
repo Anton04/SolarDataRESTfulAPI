@@ -6,6 +6,7 @@ import IoTtoolkit
 #from elasticsearch import Elasticsearch
 from ElasticsearchInterface import ESinterface
 import os, sys
+import time
 
 app = Flask(__name__)
 
@@ -146,17 +147,20 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 reply["_production"]["UUID"] = siteUUID
             else:
                 print "Rescale"
+                print time.time()
 
                 SitesProduction = IoTtoolkit.Feed()
+                print time.time()
                 PowerStreams = SitesProduction.CombineStreamsFromMulipleSources("Power",DB,siteUUID,"Power",Compressed=False)
                 EnergyStreams = SitesProduction.CombineStreamsFromMulipleSources("Energy",DB,siteUUID,"Energy",Compressed=True)
+                print time.time()
 
 
 
 
                 reply["_production"] = {}  # {"PowerStreams":PowerStreams}
                 reply["_production"]["UUID"] = siteUUID
-
+                print time.time()
 
             
 
