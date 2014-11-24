@@ -298,24 +298,7 @@ class ResampleFeedBuffer(FeedBuffer):
 
   def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,Type=None):
     self.ResampleColumns[Name] = (RateStreamSource,CounterStreamSource,Type)
-
-
-  #def Seek(self,Position = 0):
-    #Load a small buffer.
-  #  FeedBuffer.Seek(self,Position)
-
-    #Interpolate.
-
-
-  def Next(self):
-    #Save start value
-    self.ResampleStart = self.Position
-
-    FeedBuffer.Next(self)
-
-    #self.Resample()
-
-    return self.ResampleBuffer
+    return
 
   def ResampleFrames(self,Start,Stop,Period):
 
@@ -351,43 +334,7 @@ class ResampleFeedBuffer(FeedBuffer):
         return Values,Times
 
 
-  def Interpolate(self,PointInTime,values1,values2):
 
-    Data = pd.DataFrame(columns = self.Feed.DataStreams.columns)
-
-    for item in self.ResampleColumns:
-
-
-        #Map the current values
-        if self.ResampleColumns[item][0] != None:
-            Rate = self.v.loc[self.ResampleColumns[item][0]]
-        else:
-            Rate = None
-
-        if self.ResampleColumns[item][0] != None:
-            Counter = self.Values.loc[self.ResampleColumns[item][1]]
-        else:
-            Counter = None
-
-        #Determinte the type of interpolation and call interpolation function.
-        if self.ResampleColumns[item][2] == "THRESHHOLD":
-            Value = self.Interpolate(Rate,Counter,PointInTime)
-        else:
-            print "Not implemented"
-
-        self.ResampleBuffer.loc[PointInTime,item] = Value
-
-    return
-
-  def InterpolateThreshhold(rate,counter,PointInTime):
-
-    #print "Rate %s, Counter %s, Time %s" % (str(rate),str(counter),str(PointInTime))
-
-    if rate != None and counter != None and rate.Timestamp == counter.Timestamp:
-        dt = PointInTime - counter.Timestamp
-
-
-    return 0
 
 
   def Save(self,database,series):
