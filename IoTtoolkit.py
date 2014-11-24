@@ -316,8 +316,8 @@ class ResampleFeedBuffer(FeedBuffer):
 
   def ResampleFrames(self,Start,Stop,Period):
 
-    Values = pd.DataFrame(index = self.DataStreams.columns)
-    Times = pd.DataFrame(index = self.DataStreams.columns)
+    Values = pd.DataFrame(index = self.Feed.DataStreams.columns)
+    Times = pd.DataFrame(index = self.Feed.DataStreams.columns)
 
     for TimeStamp in range(Start,Stop,Period):
 
