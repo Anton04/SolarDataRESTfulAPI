@@ -133,6 +133,17 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
             if period == "0":
                 q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+                data = DB.query(q,'m')
+
+                if len(data) > 0:
+                reply["_production"] = data[0]
+                reply["_production"].pop("name")
+
+                if lowercase:
+                    reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
+                else:
+                    reply["_production"] = {}
+
             elif period == "daily":
                 pass
             elif period == "montly":
@@ -140,21 +151,32 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             elif period == "yearly":
                 pass
             else:
-                q= ("select max(Energy) as Energy, DIFFERENCE(Energy) as Power from %s group by time(%s) where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
+                q= ("select Min(Energy) as Energy from %s group by time(%s) where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
+                res = ProductionDB.QueryDf(q,'s')
+
+                res["Power"] = res["Energy"].diff().shift(-1)
+                res["Timestamp"] = res.index.to_series()
+
+                unpack = res.to_dict("list")
+                t = unpack["Timestamp"]
+                e = unpack["Energy"]
+                p = unpack["Power"]
+
+                points = []
+
+                for i in range(O,len(t)):
+                    points.append([e[i],p[i],t[i]])
+
+                reply["_production"] = {"points":points
+                mydict["columns"] = list(res.columns)
+
 
             print q
-            data = DB.query(q,'m')
 
 
 
-            if len(data) > 0:
-                reply["_production"] = data[0]
-                reply["_production"].pop("name")
 
-                if lowercase:
-                    reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
-            else:
-                reply["_production"] = {}
+
 
             reply["_production"]["UUID"] = siteUUID
             #else:
