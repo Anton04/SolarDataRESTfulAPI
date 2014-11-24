@@ -147,19 +147,22 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 reply["_production"]["UUID"] = siteUUID
             else:
                 print "Rescale"
-                print time.time()
-
-                SitesProduction = IoTtoolkit.Feed()
-                print time.time()
-                PowerStreams = SitesProduction.CombineStreamsFromMulipleSources("Power",DB,siteUUID,"Power",Compressed=False,Single=False)
-                print time.time()
-                EnergyStreams = SitesProduction.CombineStreamsFromMulipleSources("Energy",DB,siteUUID,"Energy",Compressed=True)
-                print time.time()
 
 
+                SiteFeed = IoTtoolkit.Feed()
+
+                SiteFeed.AddStream("Power",DB,siteUUID,"Power",Single=False)
+                SiteFeed.AddStream("Energy",DB,siteUUID,"Energy",Compressed=True)
 
 
-                reply["_production"] = {}  # {"PowerStreams":PowerStreams}
+                Resample = SiteFeed.GetResampleBuffer(since,period,tail)
+
+                Resample.AddResampleColumn("Power","Energy",rs.InterpolatePowerFromCounter)
+                Resample.AddResampleColumn("Energy","Energy",rs.InterpolateCounter)
+
+                df = Resample.Interpolate()
+
+                reply["_production"] = df.to_dict()
                 reply["_production"]["UUID"] = siteUUID
                 print time.time()
 
