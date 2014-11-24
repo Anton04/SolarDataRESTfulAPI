@@ -148,10 +148,13 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 print "Rescale"
 
                 SitesProduction = IoTtoolkit.Feed()
-                PowerStreams = SitesProduction.CombineStreamsFromMulipleSources("Power",ProductionDB,siteUUID,"Power",Compressed=False)
-                EnergyStreams = SitesProduction.CombineStreamsFromMulipleSources("Energy",ProductionDB,siteUUID,"Energy",Compressed=True)
+                PowerStreams = SitesProduction.CombineStreamsFromMulipleSources("Power",DB,siteUUID,"Power",Compressed=False)
+                EnergyStreams = SitesProduction.CombineStreamsFromMulipleSources("Energy",DB,siteUUID,"Energy",Compressed=True)
 
-                reply["_production"] = {"PowerStreams":PowerStreams}
+
+
+
+                reply["_production"] = {}  # {"PowerStreams":PowerStreams}
                 reply["_production"]["UUID"] = siteUUID
 
 
