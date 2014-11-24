@@ -100,16 +100,22 @@ class Universe:
   def SaveFeedsToFile(self,FileName):
     return
 
-class ResampleFeedBuffer(FeedBuffer):
-  def __init__(self,Feed,Size,Period,Type="THRESH_HOLD",AutoDecompress=True):
 
-    FeedBuffer.__init__(self,Feed,10,AutoDecompress)
+
+
+class ResampleFeedBuffer(FeedBuffer):
+  def __init__(self,Feed,Start,Period,Samples):
+
+    FeedBuffer.__init__(self,Feed,10,AutoDecompress=False)
     self.Type = Type
     self.ResamplePeriod = Period
     self.ResampleColumns = {}
-    self.ResampleBufferSize = Size
+    self.ResampleBufferSize = Samples
     self.ResampleBuffer = None
-    self.ResampleStart = 0
+    self.ResampleStart = Start
+
+    self.ResampleFrames(Start,(self.Samples*self.Period)+self.Start,Period)
+
 
   def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,Type=None):
     self.ResampleColumns[Name] = (RateStreamSource,CounterStreamSource,Type)
@@ -132,7 +138,7 @@ class ResampleFeedBuffer(FeedBuffer):
 
     return self.ResampleBuffer
 
-  def ResampleFrames(self,Start,Stop,Period):
+  def ResampleFrames(self,Start=self.Start,Stop=(self.Samples*self.Period)+self.Start,Period=Self.Period):
 
     Values = pd.DataFrame(index = self.DataStreams.columns)
     Times = pd.DataFrame(index = self.DataStreams.columns)
@@ -384,11 +390,12 @@ class Feed():
     self.Pointer = None
     self.Buffer = None
 
-  def GetResampleBuffer(self,StartTime = 0, Interval=3600, RateStream = None, CounterStream = None):
+  def GetResampleBuffer(self,Start,Period,Samples):
 
-      #for
+    fb = ResampleFeedBuffer(self,Start,Period,Samples)
+    return fb
 
-      return
+
 
   def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
     if Name == None:
