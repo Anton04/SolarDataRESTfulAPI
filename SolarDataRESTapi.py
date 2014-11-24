@@ -2,6 +2,7 @@
 from flask import Flask, jsonify, abort,request,Response
 import InfluxDBInterface
 import json
+import IoTtoolkit
 #from elasticsearch import Elasticsearch
 from ElasticsearchInterface import ESinterface
 import os, sys
@@ -145,6 +146,12 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 reply["_production"]["UUID"] = siteUUID
             else:
                 print "Rescale"
+
+                SitesProduction = IoTtoolkit.Feed()
+                PowerStreams = SitesProduction.CombineStreamsFromMulipleSources("Power",ProductionDB,siteUUID,"Power",Compressed=False)
+                EnergyStreams = SitesProduction.CombineStreamsFromMulipleSources("Energy",ProductionDB,siteUUID,"Energy",Compressed=True)
+
+                reply["_production"]["UUID"] = "test"
 
 
             
