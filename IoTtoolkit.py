@@ -319,29 +319,35 @@ class ResampleFeedBuffer(FeedBuffer):
 
   def ResampleFrames(self,Start,Stop,Period):
 
-    Values = pd.DataFrame(columns = self.Feed.DataStreams.columns)
-    Times = pd.DataFrame(columns = self.Feed.DataStreams.columns)
+        Values = pd.DataFrame(columns = self.Feed.DataStreams.columns)
+        Times = pd.DataFrame(columns = self.Feed.DataStreams.columns)
 
-    TimeStamp = Start
+        TimeStamp = Start
 
-    while(TimeStamp <= Stop):
+        while(TimeStamp <= Stop):
 
-        #Loop through all.
-        for (Name,Properties) in self.Feed.DataStreams.iteritems():
-              Database = Properties["Database"]
-              Serie = Properties["Serie"]
-              Property = Properties["Property"]
+            #Loop through all.
+            for (Name,Properties) in self.Feed.DataStreams.iteritems():
+                  Database = Properties["Database"]
+                  Serie = Properties["Serie"]
+                  Property = Properties["Property"]
 
 
-              (StreamTime,StreamValue) = Database.GetPrecedingValue(int(TimeStamp),Serie,Property)
+                  (StreamTime,StreamValue) = Database.GetPrecedingValue(int(TimeStamp),Serie,Property)
 
-              if StreamTime != None:
-                    Values.loc[int(TimeStamp),Name] = StreamValue
-                    Times.loc[int(TimeStamp),Name] = TimeStamp - StreamTime
+                  if StreamTime != None:
+                        Values.loc[int(TimeStamp),Name] = StreamValue
+                        Times.loc[int(TimeStamp),Name] = TimeStamp - StreamTime
 
-              TimeStamp += Period
+                  if pd.isnull(StreamValue):
+                      print Values
+                      print Name
+                      print Properties
+                      return
 
-    
+                  TimeStamp += Period
+
+
     return Values,Times
 
 
