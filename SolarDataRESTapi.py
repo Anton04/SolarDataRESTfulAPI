@@ -157,8 +157,8 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                 Resample = SiteFeed.GetResampleBuffer(int(since),int(period),int(tail))
 
-                Resample.AddResampleColumn("Power","Energy",rs.InterpolatePowerFromCounter)
-                Resample.AddResampleColumn("Energy","Energy",rs.InterpolateCounter)
+                Resample.AddResampleColumn("Power","Energy",Resample.InterpolatePowerFromCounter)
+                Resample.AddResampleColumn("Energy","Energy",Resample.InterpolateCounter)
 
                 df = Resample.Interpolate()
 
