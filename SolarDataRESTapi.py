@@ -140,7 +140,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             elif period == "yearly":
                 pass
             else:
-                q= ("select max(Energy) as Energy, DIFFERENCE(Energy) as Power from %s grouped by %s where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
+                q= ("select max(Energy) as Energy, DIFFERENCE(Energy) as Power from %s group by %s where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
 
             print q
             data = DB.query(q,'m')
