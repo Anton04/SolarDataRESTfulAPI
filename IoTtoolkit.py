@@ -328,7 +328,7 @@ class FeedBuffer():
 
 #This function look inside the current buffer to see if we can move the Seek point without calling the database.
 #This should be used when moving the seek point small steps. For example when re-sampeling the stream.
-def MoveSeek(self,Period):
+  def MoveSeek(self,Period):
 
     #TODO
 
