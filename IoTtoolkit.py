@@ -288,8 +288,9 @@ class ResampleFeedBuffer(FeedBuffer):
     self.ResampleBufferSize = Samples
     self.ResampleBuffer = None
     self.ResampleStart = Start
+    self.ResampleStop = (Samples*Period)+Start
 
-    self.ResampleFrames(Start,(self.Samples*self.Period)+self.Start,Period)
+    self.ResampleFrames(Start,self.ResampleStop,Period)
 
 
   def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,Type=None):
