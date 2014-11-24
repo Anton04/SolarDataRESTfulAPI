@@ -157,7 +157,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 print "__"*10
                 res = DB.QueryDf(q,'s')
 
-                if res == None:
+                if type(df) != pd.DataFrame:
                     reply["_production"] = {}
 
                 else:
