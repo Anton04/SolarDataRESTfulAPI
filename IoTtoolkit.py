@@ -282,7 +282,7 @@ class ResampleFeedBuffer(FeedBuffer):
 
     FeedBuffer.__init__(self,Feed,10,AutoDecompress=False)
 
-    self.Type = Type
+    #self.Type = Type
     self.ResamplePeriod = Period
     self.ResampleColumns = {}
     self.ResampleBufferSize = Samples
