@@ -352,7 +352,7 @@ class ResampleFeedBuffer(FeedBuffer):
   def InterpolatePowerFromCounter(ResampleObj,Inputs):
 
         s1 = ResampleObj.ResampleValuesBefore[Inputs]
-        return s1.iloc[:,1].diff().shift(-1)
+        return s1.diff().shift(-1)
 
   def InterpolateCounter(ResampleObj,Inputs):
 
