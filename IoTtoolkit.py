@@ -138,7 +138,7 @@ class ResampleFeedBuffer(FeedBuffer):
 
     return self.ResampleBuffer
 
-  def ResampleFrames(self,Start=self.Start,Stop=(self.Samples*self.Period)+self.Start,Period=Self.Period):
+  def ResampleFrames(self,Start,Stop,Period):
 
     Values = pd.DataFrame(index = self.DataStreams.columns)
     Times = pd.DataFrame(index = self.DataStreams.columns)
