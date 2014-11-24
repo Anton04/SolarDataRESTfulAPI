@@ -342,7 +342,7 @@ class ResampleFeedBuffer(FeedBuffer):
 
         for item in self.ResampleColumns:
 
-            Data[item] = ResampleColumns[item][1](self,ResampleColumns[item][0]).iloc[1:-1]
+            Data[item] = self.ResampleColumns[item][1](self,self.ResampleColumns[item][0]).iloc[1:-1]
 
         self.Interpolation = Data
 
