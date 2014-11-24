@@ -331,7 +331,7 @@ class ResampleFeedBuffer(FeedBuffer):
 
         return Values,Times
 
-    def Interpolate(self):
+  def Interpolate(self):
 
         (Values,Times) = self.ResampleFrames(Start,self.ResampleStop,Period)
 
@@ -349,13 +349,12 @@ class ResampleFeedBuffer(FeedBuffer):
         return Data
 
 
-
-    def InterpolatePowerFromCounter(ResampleObj,Inputs):
+  def InterpolatePowerFromCounter(ResampleObj,Inputs):
 
         s1 = ResampleObj.ResampleValuesBefore[Inputs]
         return s1.iloc[:,1].diff().shift(-1)
 
-    def InterpolateCounter(ResampleObj,Inputs):
+  def InterpolateCounter(ResampleObj,Inputs):
 
         s1 = ResampleObj.ResampleValuesBefore[Inputs]
         s2 = ResampleObj.ResampleTimesBefore[Inputs]
