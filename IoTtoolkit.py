@@ -319,7 +319,9 @@ class ResampleFeedBuffer(FeedBuffer):
     Values = pd.DataFrame(index = self.Feed.DataStreams.columns)
     Times = pd.DataFrame(index = self.Feed.DataStreams.columns)
 
-    for TimeStamp in range(Start,Stop,Period):
+    TimeStamp = Start
+
+    while(TimeStamp <= Stop):
 
         #Loop through all.
         for (Name,Properties) in self.DataStreams.iteritems():
@@ -336,6 +338,8 @@ class ResampleFeedBuffer(FeedBuffer):
 
           Values.loc[TimeStamp,Name] = StreamValue
           Times[TimeStamp,Name] = StreamTime
+
+          TimeStamp += Period
 
 
 
