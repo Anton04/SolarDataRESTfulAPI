@@ -155,7 +155,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 SiteFeed.AddStream("Energy",DB,siteUUID,"Energy",Compressed=True)
 
 
-                Resample = SiteFeed.GetResampleBuffer(since,period,tail)
+                Resample = SiteFeed.GetResampleBuffer(int(since),int(period),int(tail))
 
                 Resample.AddResampleColumn("Power","Energy",rs.InterpolatePowerFromCounter)
                 Resample.AddResampleColumn("Energy","Energy",rs.InterpolateCounter)
