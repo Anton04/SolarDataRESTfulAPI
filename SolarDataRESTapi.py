@@ -151,7 +151,8 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                 SitesProduction = IoTtoolkit.Feed()
                 print time.time()
-                PowerStreams = SitesProduction.CombineStreamsFromMulipleSources("Power",DB,siteUUID,"Power",Compressed=False)
+                PowerStreams = SitesProduction.CombineStreamsFromMulipleSources("Power",DB,siteUUID,"Power",Compressed=False,Single=False)
+                print time.time()
                 EnergyStreams = SitesProduction.CombineStreamsFromMulipleSources("Energy",DB,siteUUID,"Energy",Compressed=True)
                 print time.time()
 

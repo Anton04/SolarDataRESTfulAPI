@@ -396,24 +396,30 @@ class Feed():
 
 
 
-  def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
+  def AddStream(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True,Single= True):
     if Name == None:
       Name = uuid.uuid1()
 
+
     self.DataStreams[Name] = pd.Series([Database,Series,Property,Timeout,TOMarker,Type,Compressed],index=self.DataStreams.index)
 
-    self.UpdateSourceAndNameDirectories()
+    if Single:
+        self.UpdateSourceAndNameDirectories()
 
     return self.DataStreams
 
-  def CombineStreamsFromMulipleSources(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True):
+  def CombineStreamsFromMulipleSources(self,Name = None,Database = None, Series = None,Property = None,Timeout = None,TOMarker = None, Type = None,Compressed = True,Single = True):
 
     NameList = []
 
     for Serie in Series:
       Name2 = Name + str(self.DataStreams.shape[1])
-      self.AddStream(Name2,Database, Serie,Property,Timeout,TOMarker, Type,Compressed)
+      self.AddStream(Name2,Database, Serie,Property,Timeout,TOMarker, Type,Compressed,Single = False)
       NameList.append(Name2)
+
+
+    if Single:
+        self.UpdateSourceAndNameDirectories()
     
     return NameList
 
