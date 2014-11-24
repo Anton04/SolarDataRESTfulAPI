@@ -322,11 +322,10 @@ class ResampleFeedBuffer(FeedBuffer):
                         Values.loc[int(TimeStamp),Name] = StreamValue
                         Times.loc[int(TimeStamp),Name] = TimeStamp - StreamTime
 
-                  if pd.isnull(StreamValue):
-                      print Values
-                      print Name
-                      print Properties
-                      return
+                        print StreamValue,StreamTime
+                        print Name
+                        print Properties
+
 
                   TimeStamp += Period
 
