@@ -188,7 +188,7 @@ class ResampleFeedBuffer(FeedBuffer):
 
     return
 
-def InterpolateThreshhold(rate,counter,PointInTime):
+  def InterpolateThreshhold(rate,counter,PointInTime):
 
     #print "Rate %s, Counter %s, Time %s" % (str(rate),str(counter),str(PointInTime))
 
