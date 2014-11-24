@@ -165,6 +165,9 @@ class InfluxDBlayer(InfluxDBClient):
 
     return df_ret
 
+  def QueryDf(self,query,resolution='s'):
+      return self.ResultToDataframe(self.query(query,resolution))
+
 
   def GetDataPeriod(self,series,properties,start,lenght=60*60*24*7,limit=1000,time_precision='s'):
     series = self.ProcessSeriesParameter(series)
