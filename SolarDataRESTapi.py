@@ -151,7 +151,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 PowerStreams = SitesProduction.CombineStreamsFromMulipleSources("Power",ProductionDB,siteUUID,"Power",Compressed=False)
                 EnergyStreams = SitesProduction.CombineStreamsFromMulipleSources("Energy",ProductionDB,siteUUID,"Energy",Compressed=True)
 
-                reply["_production"]["UUID"] = json.dumps(PowerStreams)
+                reply["_production"]["UUID"] = {"PowerStreams":PowerStreams}
 
 
             
