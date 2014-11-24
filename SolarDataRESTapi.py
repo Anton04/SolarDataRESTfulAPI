@@ -155,17 +155,17 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 q= ("select Min(Energy) as Energy from %s group by time(%s) where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
                 print q
                 print "__"*10
-                res = DB.QueryDf(q,'s')
+                df = DB.QueryDf(q,'s')
 
                 if type(df) != pd.DataFrame:
                     reply["_production"] = {}
 
                 else:
 
-                    res["Power"] = res["Energy"].diff().shift(-1)
-                    res["Timestamp"] = res.index.to_series()
+                    df["Power"] = df["Energy"].diff().shift(-1)
+                    df["Timestamp"] = df.index.to_series()
 
-                    unpack = res.to_dict("list")
+                    unpack = df.to_dict("list")
                     t = unpack["Timestamp"]
                     e = unpack["Energy"]
                     p = unpack["Power"]
@@ -176,7 +176,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                         points.append([e[i],p[i],t[i]])
 
                     reply["_production"] = {"points":points}
-                    reply["_production"]["columns"] = list(res.columns)
+                    reply["_production"]["columns"] = list(df.columns)
 
                     if lowercase:
                             reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
