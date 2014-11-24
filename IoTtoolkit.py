@@ -324,7 +324,7 @@ class ResampleFeedBuffer(FeedBuffer):
     while(TimeStamp <= Stop):
 
         #Loop through all.
-        for (Name,Properties) in self.DataStreams.iteritems():
+        for (Name,Properties) in self.Feed.DataStreams.iteritems():
           Database = Properties["Database"]
           Serie = Properties["Serie"]
           Property = Properties["Property"]
