@@ -103,111 +103,7 @@ class Universe:
 
 
 
-class ResampleFeedBuffer(FeedBuffer):
-  def __init__(self,Feed,Start,Period,Samples):
 
-    FeedBuffer.__init__(self,Feed,10,AutoDecompress=False)
-    self.Type = Type
-    self.ResamplePeriod = Period
-    self.ResampleColumns = {}
-    self.ResampleBufferSize = Samples
-    self.ResampleBuffer = None
-    self.ResampleStart = Start
-
-    self.ResampleFrames(Start,(self.Samples*self.Period)+self.Start,Period)
-
-
-  def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,Type=None):
-    self.ResampleColumns[Name] = (RateStreamSource,CounterStreamSource,Type)
-
-
-  #def Seek(self,Position = 0):
-    #Load a small buffer.
-  #  FeedBuffer.Seek(self,Position)
-
-    #Interpolate.
-
-
-  def Next(self):
-    #Save start value
-    self.ResampleStart = self.Position
-
-    FeedBuffer.Next(self)
-
-    #self.Resample()
-
-    return self.ResampleBuffer
-
-  def ResampleFrames(self,Start,Stop,Period):
-
-    Values = pd.DataFrame(index = self.DataStreams.columns)
-    Times = pd.DataFrame(index = self.DataStreams.columns)
-
-    for TimeStamp in range(Start,Stop,Period):
-
-        #Loop through all.
-        for (Name,Properties) in self.DataStreams.iteritems():
-          Database = Properties["Database"]
-          Serie = Properties["Serie"]
-          Property = Properties["Property"]
-
-
-          (StreamTime,StreamValue) = Database.GetPrecedingValue(TimeStamp,Serie,Property)
-
-          if StreamTime == None:
-            StreamValue = float("NaN")
-          #  (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,TimeStamp)
-
-          Values.loc[TimeStamp,Name] = StreamValue
-          Times[TimeStamp,Name] = StreamTime
-
-
-
-    return Values,Times
-
-
-  def Interpolate(self,PointInTime,values1,values2):
-
-    Data = pd.DataFrame(columns = self.Feed.DataStreams.columns)
-
-    for item in self.ResampleColumns:
-
-
-        #Map the current values
-        if self.ResampleColumns[item][0] != None:
-            Rate = self.v.loc[self.ResampleColumns[item][0]]
-        else:
-            Rate = None
-
-        if self.ResampleColumns[item][0] != None:
-            Counter = self.Values.loc[self.ResampleColumns[item][1]]
-        else:
-            Counter = None
-
-        #Determinte the type of interpolation and call interpolation function.
-        if self.ResampleColumns[item][2] == "THRESHHOLD":
-            Value = self.Interpolate(Rate,Counter,PointInTime)
-        else:
-            print "Not implemented"
-
-        self.ResampleBuffer.loc[PointInTime,item] = Value
-
-    return
-
-  def InterpolateThreshhold(rate,counter,PointInTime):
-
-    #print "Rate %s, Counter %s, Time %s" % (str(rate),str(counter),str(PointInTime))
-
-    if rate != None and counter != None and rate.Timestamp == counter.Timestamp:
-        dt = PointInTime - counter.Timestamp
-
-
-    return 0
-
-
-  def Save(self,database,series):
-      print "Saving is disabled for this class"
-      return
 
 
 
@@ -377,6 +273,125 @@ class FeedBuffer():
 
   #def _repr_pretty_(self):
   #  return self.Data._repr_pretty_()
+
+
+#***************
+
+class ResampleFeedBuffer(FeedBuffer):
+  def __init__(self,Feed,Start,Period,Samples):
+
+    FeedBuffer.__init__(self,Feed,10,AutoDecompress=False)
+
+    self.Type = Type
+    self.ResamplePeriod = Period
+    self.ResampleColumns = {}
+    self.ResampleBufferSize = Samples
+    self.ResampleBuffer = None
+    self.ResampleStart = Start
+
+    self.ResampleFrames(Start,(self.Samples*self.Period)+self.Start,Period)
+
+
+  def AddResampleColumn(self,Name,RateStreamSource=None,CounterStreamSource=None,Type=None):
+    self.ResampleColumns[Name] = (RateStreamSource,CounterStreamSource,Type)
+
+
+  #def Seek(self,Position = 0):
+    #Load a small buffer.
+  #  FeedBuffer.Seek(self,Position)
+
+    #Interpolate.
+
+
+  def Next(self):
+    #Save start value
+    self.ResampleStart = self.Position
+
+    FeedBuffer.Next(self)
+
+    #self.Resample()
+
+    return self.ResampleBuffer
+
+  def ResampleFrames(self,Start,Stop,Period):
+
+    Values = pd.DataFrame(index = self.DataStreams.columns)
+    Times = pd.DataFrame(index = self.DataStreams.columns)
+
+    for TimeStamp in range(Start,Stop,Period):
+
+        #Loop through all.
+        for (Name,Properties) in self.DataStreams.iteritems():
+          Database = Properties["Database"]
+          Serie = Properties["Serie"]
+          Property = Properties["Property"]
+
+
+          (StreamTime,StreamValue) = Database.GetPrecedingValue(TimeStamp,Serie,Property)
+
+          if StreamTime == None:
+            StreamValue = float("NaN")
+          #  (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,TimeStamp)
+
+          Values.loc[TimeStamp,Name] = StreamValue
+          Times[TimeStamp,Name] = StreamTime
+
+
+
+    return Values,Times
+
+
+  def Interpolate(self,PointInTime,values1,values2):
+
+    Data = pd.DataFrame(columns = self.Feed.DataStreams.columns)
+
+    for item in self.ResampleColumns:
+
+
+        #Map the current values
+        if self.ResampleColumns[item][0] != None:
+            Rate = self.v.loc[self.ResampleColumns[item][0]]
+        else:
+            Rate = None
+
+        if self.ResampleColumns[item][0] != None:
+            Counter = self.Values.loc[self.ResampleColumns[item][1]]
+        else:
+            Counter = None
+
+        #Determinte the type of interpolation and call interpolation function.
+        if self.ResampleColumns[item][2] == "THRESHHOLD":
+            Value = self.Interpolate(Rate,Counter,PointInTime)
+        else:
+            print "Not implemented"
+
+        self.ResampleBuffer.loc[PointInTime,item] = Value
+
+    return
+
+  def InterpolateThreshhold(rate,counter,PointInTime):
+
+    #print "Rate %s, Counter %s, Time %s" % (str(rate),str(counter),str(PointInTime))
+
+    if rate != None and counter != None and rate.Timestamp == counter.Timestamp:
+        dt = PointInTime - counter.Timestamp
+
+
+    return 0
+
+
+  def Save(self,database,series):
+      print "Saving is disabled for this class"
+      return
+
+
+
+
+
+#***************
+
+
+
 
 
 
