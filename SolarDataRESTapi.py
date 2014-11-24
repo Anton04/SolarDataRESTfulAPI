@@ -136,11 +136,11 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 data = DB.query(q,'m')
 
                 if len(data) > 0:
-                reply["_production"] = data[0]
-                reply["_production"].pop("name")
+                    reply["_production"] = data[0]
+                    reply["_production"].pop("name")
 
-                if lowercase:
-                    reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
+                    if lowercase:
+                        reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
                 else:
                     reply["_production"] = {}
 
@@ -168,7 +168,10 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                     points.append([e[i],p[i],t[i]])
 
                 reply["_production"] = {"points":points
-                mydict["columns"] = list(res.columns)
+                reply["_production"]["columns"] = list(res.columns)
+
+                if lowercase:
+                        reply["_production"]["columns"] = MakeListLowerCase(reply["_production"]["columns"])
 
 
             print q
