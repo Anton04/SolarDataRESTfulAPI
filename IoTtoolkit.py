@@ -328,25 +328,20 @@ class ResampleFeedBuffer(FeedBuffer):
 
         #Loop through all.
         for (Name,Properties) in self.Feed.DataStreams.iteritems():
-          Database = Properties["Database"]
-          Serie = Properties["Serie"]
-          Property = Properties["Property"]
+              Database = Properties["Database"]
+              Serie = Properties["Serie"]
+              Property = Properties["Property"]
 
 
-          (StreamTime,StreamValue) = Database.GetPrecedingValue(int(TimeStamp),Serie,Property)
+              (StreamTime,StreamValue) = Database.GetPrecedingValue(int(TimeStamp),Serie,Property)
 
-          if StreamTime == None:
-            StreamValue = float("NaN")
-          #  (StreamTime,StreamValue) = Database.   GetSuccedingValue(Serie,Property,TimeStamp)
+              if StreamTime != None:
+                    Values.loc[int(TimeStamp),Name] = StreamValue
+                    Times.loc[int(TimeStamp),Name] = TimeStamp - StreamTime
 
-          else:
-            Values.loc[int(TimeStamp),Name] = StreamValue
-            Times.loc[int(TimeStamp),Name] = TimeStamp - StreamTime
+              TimeStamp += Period
 
-          TimeStamp += Period
-
-
-
+    
     return Values,Times
 
 
