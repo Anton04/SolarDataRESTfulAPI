@@ -359,8 +359,8 @@ class ResampleFeedBuffer(FeedBuffer):
         s1 = ResampleObj.ResampleValuesBefore[Inputs]
         s2 = ResampleObj.ResampleTimesBefore[Inputs]
 
-        return (s2 < 3600).replace(False,float("nan")) * s1
-
+        #return (s2 < 3600).replace(False,float("nan")) * s1
+        return s1
 
 
 
