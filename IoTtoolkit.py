@@ -333,11 +333,11 @@ class ResampleFeedBuffer(FeedBuffer):
           Property = Properties["Property"]
 
 
-          (StreamTime,StreamValue) = Database.GetPrecedingValue(TimeStamp,Serie,Property)
+          (StreamTime,StreamValue) = Database.GetPrecedingValue(int(TimeStamp),Serie,Property)
 
           if StreamTime == None:
             StreamValue = float("NaN")
-          #  (StreamTime,StreamValue) = Database.GetSuccedingValue(Serie,Property,TimeStamp)
+          #  (StreamTime,StreamValue) = Database.   GetSuccedingValue(Serie,Property,TimeStamp)
 
           else:
             Values.loc[int(TimeStamp),Name] = StreamValue
