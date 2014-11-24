@@ -333,7 +333,7 @@ class ResampleFeedBuffer(FeedBuffer):
           Property = Properties["Property"]
 
 
-          (StreamTime,StreamValue) = Feed.Database.GetPrecedingValue(TimeStamp,Serie,Property)
+          (StreamTime,StreamValue) = Database.GetPrecedingValue(TimeStamp,Serie,Property)
 
           if StreamTime == None:
             StreamValue = float("NaN")
