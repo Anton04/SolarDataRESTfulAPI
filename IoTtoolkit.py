@@ -333,7 +333,7 @@ class ResampleFeedBuffer(FeedBuffer):
 
   def Interpolate(self):
 
-        (Values,Times) = self.ResampleFrames(Start,self.ResampleStop,Period)
+        (Values,Times) = self.ResampleFrames(self.ResampleStart,self.ResampleStop,self.ResamplePeriod)
 
         self.ResampleValuesBefore = Values
         self.ResampleTimesBefore = Times
