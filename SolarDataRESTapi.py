@@ -155,7 +155,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 q= ("select Min(Energy) as Energy from %s group by time(%s) where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
                 print q
                 print "__"*10
-                df = DB.QueryDf(q,'s')
+                df = DB.QueryDf(q,'m')
 
                 if type(df) == type(None):
                     reply["_production"] = {}
