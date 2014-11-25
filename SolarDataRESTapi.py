@@ -172,7 +172,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                     points = []
 
-                    for i in range(O,len(t)):
+                    for i in range(0,len(t)):
                         points.append([e[i],p[i],t[i]])
 
                     reply["_production"] = {"points":points}
