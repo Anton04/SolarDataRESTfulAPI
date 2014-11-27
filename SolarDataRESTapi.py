@@ -165,13 +165,13 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                     #Add a last value
                     try:
-                        print "*"*20
+                        #print "*"*20
                         lasttimestamp = df.index.max()
 
-                        print lasttimestamp
+                        #print lasttimestamp
 
                         q2= ("select Max(Energy) as Energy from %s group by time(%s) where time > %s limit %i" % (siteUUID,period,lasttimestamp*1000000,1))
-                        print q2
+                        #print q2
 
                         df2 = DB.QueryDf(q2,'m')
 
