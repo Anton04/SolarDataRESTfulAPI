@@ -162,7 +162,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                 else:
 
-                    df["Power"] = df["Energy"].diff().shift(-1)
+                    df["Power"] = df["Energy"].diff()
                     df["Timestamp"] = df.index.to_series()
 
                     unpack = df.to_dict("list")
@@ -172,7 +172,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                     points = []
 
-                    for i in range(0,len(t)-1):
+                    for i in range(0,len(t)):
                         points.append([e[i],p[i],t[i]])
 
                     reply["_production"] = {"points":points}
