@@ -166,7 +166,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                     #Add a last value
                     try:
                         print "*"*20
-                        lasttimestamp = df["Time"].max()
+                        lasttimestamp = df.index.max()
 
                         print lasttimestamp
 
@@ -175,9 +175,9 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                         df2 = DB.QueryDf(q2,'m')
 
-                        print df2
+                        #print df2
 
-                        
+
                         df = pd.concat([df,df2])
                     except:
                         pass
