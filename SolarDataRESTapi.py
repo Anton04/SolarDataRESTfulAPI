@@ -162,7 +162,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                 else:
 
-                    df["Power"] = df["Energy"].diff()
+                    df["Power"] = df["Energy"].diff().shift(-1)
                     df["Power"].fillna("NULL",inplace = True)
                     df["Timestamp"] = df.index.to_series()
 
