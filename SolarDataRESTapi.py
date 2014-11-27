@@ -7,6 +7,7 @@ import IoTtoolkit
 from ElasticsearchInterface import ESinterface
 import os, sys
 import time
+import pandas as pd
 
 app = Flask(__name__)
 
