@@ -162,6 +162,15 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                 else:
 
+                    #Add a last value
+                    try:
+                        lasttimestamp = df["Time"].max()
+                        q2= ("select Max(Energy) as Energy from %s group by time(%s) where time > %s limit %i" % (siteUUID,period,lasttimestamp*1000000,1))
+                        df2 = DB.QueryDf(q2,'m')
+                        df = pd.concat([df,df2])
+                    except:
+                        pass
+
                     df["Power"] = df["Energy"].diff().shift(-1)
                     df["Power"].fillna("NULL",inplace = True)
                     df["Timestamp"] = df.index.to_series()
@@ -173,7 +182,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                     points = []
 
-                    for i in range(0,len(t)):
+                    for i in range(0,len(t)-1):
                         points.append([e[i],p[i],t[i]])
 
                     reply["_production"] = {"points":points}
