@@ -83,13 +83,19 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   #        del df[key]
 
   #Reformat timestamps
+  droplist = []
+
   for i in range(0,df.shape[0]):
     try:
+      #print "*" + df["Time"][i]
       timestamp = time.mktime(time.strptime(df["Time"][i],"%y-%m-%d %H:%M"))
       df["Time"][i] = timestamp
     except:
-      df = df.drop(df.index[i])
-      
+      #print "*" + df["Time"][i]
+      droplist.append(df.index[i])
+
+  df = df.drop(droplist)
+
   return df
   
 
@@ -226,8 +232,8 @@ def Update():
         
         while Current < StopTime:
             
-            #Dont request data in the future.
-            if (Current + PeriodLen) > StopTime:
+            #Dont request (to much) data in the future.
+            if Current > StopTime:
                 PeriodLen = StopTime - Current
                 
             #But keep period to over 10 min atleast 
