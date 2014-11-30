@@ -72,6 +72,8 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
         
     
     while (dfLog.shape[0] > 1):
+
+
     
         #Create a production frame.
         dfProduction = pd.DataFrame(columns = ["Power","Energy"])
@@ -109,6 +111,8 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
             PreviousLastValidValueTime = MaxEnergyTime
         
         dfLog = LogDB.GetNextNRows(dfLog,1000)
+
+        print "At:" str(dfLog.index[-1]) + "     \r",
         
     return dfLog.index[-1]
 
