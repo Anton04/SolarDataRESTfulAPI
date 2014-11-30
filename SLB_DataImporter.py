@@ -248,7 +248,7 @@ if __name__ == "__main__":
         Now = time.time()
         
         try:
-            (TrailTime,LeadTime) = Update()
+            (TrailTime,LeadTime) = Update(LogDB)
         except Exception,e: 
             #print str(e)
             print traceback.format_exc()
