@@ -221,7 +221,15 @@ class InfluxDBlayer(InfluxDBClient):
     series = self.ProcessSeriesParameter(series)
     properties = self.ProcessPropParameter(properties)
 
-    result = self.query('select %s from \"%s\" order desc limit 1;' % (properties,series), time_precision)
+    #TODO
+
+    try:
+        result = self.query('select %s from \"%s\" order desc limit 1;' % (properties,series), time_precision)
+    except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return (None,None)
+        else:
+            raise err
 
     #print result
 
