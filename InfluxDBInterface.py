@@ -49,8 +49,8 @@ class InfluxDBlayer(InfluxDBClient):
 
     ret = []
 
-    for series in res:
-       ret.append(series["name"])
+    for series in res[0]["points"]:
+       ret.append(series[1])
 
     ret.sort()
 
