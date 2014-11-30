@@ -2,18 +2,19 @@
 # -*- coding: utf-8 -*-
 
 
-import requests
+#import requests
 import pandas
 import time
 import json
-from influxdb import InfluxDBClient
-import numpy
+#from influxdb import InfluxDBClient
+#import numpy
 import mosquitto 
 from IPython.display import clear_output
 import sys
 from ElasticsearchInterface import ESinterface
 import os
 from InfluxDBInterface import InfluxDBlayer
+import traceback
 
 #Change to elasticsearch     
 def LoadSiteIds(file="SiteIDs.json"):
@@ -247,7 +248,8 @@ if __name__ == "__main__":
         try:
             (TrailTime,LeadTime) = Update()
         except Exception,e: 
-            print str(e)
+            #print str(e)
+            print traceback.format_exc()
             print "Sleeping 1 min."
             sys.stdout.flush()
             time.sleep(60)
