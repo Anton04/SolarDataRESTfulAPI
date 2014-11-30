@@ -13,7 +13,7 @@ from IPython.display import clear_output
 import sys
 from ElasticsearchInterface import ESinterface
 import os
-
+from InfluxDBInterface import InfluxDBlayer
 
 #Change to elasticsearch     
 def LoadSiteIds(file="SiteIDs.json"):
@@ -99,76 +99,7 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
   return df
   
 
-class InfluxFeedLTSInterface(InfluxDBClient):
-  def __init__(self,config_file="influx2.json"):
 
-    #Load database credentials
-    fp = open(config_file,"r")
-    self.config = json.load(fp)
-    fp.close()
-    
-    #Connect
-    InfluxDBClient.__init__(self,self.config["host"], self.config["port"], self.config["user"], self.config["password"], self.config["database"])
-
-  def GetLastTimeStamp(self,FluxId):
-
-    try:
-        result = self.query('select time from \"%s\" order desc limit 1;' % FluxId, time_precision='m')
-
-    except Exception, err:
-        if err.message.find("400: Couldn't find series:") != -1:
-            return None
-        else:
-            raise err
-
-    try:
-        return float(result[0]["points"][0][0])/1000.0
-    except:
-      return 0.0
-
-  def SendToInfluxDB(self,df,FeedId):
-    #Series name
-    #series = FeedId + "/raw_data" 
-    
-    rows = 0
-
-    #Save each row
-    for i in range(0,df.shape[0]):
-      timestamp = df.irow(i)[0]
-      column = ["time"]
-      data = [int(timestamp*1000)]
-      
-
-      #Iterate each value and remove NANs and fix floats.
-      for j in range(1,df.shape[1]):
-        value = df.iloc[i,j]
-        
-        #Float
-        if type(value) == str:
-            if value.find(",") != -1:
-                value = float(value.replace(",","."))
-        #Nan
-        elif numpy.isnan(value):
-            continue
-        #Add key
-        column.append(df.keys()[j])
-        data.append(value)
-
-      #If there where only nan on this row continue to next row. 
-      if len(column) == 1:
-        continue
-          
-      fdata = [{
-          "points": [data],
-          "name": FeedId,
-          "columns": column
-          }]
-
-      self.write_points_with_precision(fdata,"m")
-      
-      rows += 1
-        
-    return rows
 
 
 def Update():
@@ -205,7 +136,7 @@ def Update():
     SiteIDs = LoadSLBSiteIds(es)
     #SiteIDs = LoadSiteIds("/root/git/SolarDataRESTfulAPI/SiteIDs.json")
     
-    Feeds = InfluxFeedLTSInterface(path + "/" + "influx2.json")
+    Feeds = InfluxDBlayer(path + "/" + "influx2.json")
     
     #Get all data until now + 1h
     StopTime = time.time() + 3600
@@ -223,6 +154,7 @@ def Update():
             print "No previous records in: " + FeedId
             print "\tStarting from Okt 2013"
             StartTime = time.mktime(time.strptime("2013-10-01","%Y-%m-%d"))
+            exit()
         else:
             print "Last record in stream: " + FeedId
             print "\tat: " + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(StartTime))
