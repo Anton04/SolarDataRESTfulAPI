@@ -469,6 +469,54 @@ class InfluxDBlayer(InfluxDBClient):
 
     return rows
 
+def SendToInfluxDB(self,df,FeedId):
+    #Series name
+    #series = FeedId + "/raw_data"
+
+    rows = 0
+
+    #Save each row
+    for i in range(0,df.shape[0]):
+      timestamp = df.irow(i)[0]
+      column = ["time"]
+      data = [int(timestamp*1000)]
+
+
+      #Iterate each value and remove NANs and fix floats.
+      for j in range(1,df.shape[1]):
+        value = df.iloc[i,j]
+
+        #Float
+        if type(value) == str:
+            if value.find(",") != -1:
+                value = float(value.replace(",","."))
+        #Nan
+        elif numpy.isnan(value):
+            continue
+        #Add key
+        column.append(df.keys()[j])
+        data.append(value)
+
+      #If there where only nan on this row continue to next row.
+      if len(column) == 1:
+        continue
+
+      fdata = [{
+          "points": [data],
+          "name": FeedId,
+          "columns": column
+          }]
+
+      self.write_points_with_precision(fdata,"m")
+
+      rows += 1
+
+    return rows
+
+
+
+
+#********************************************
 
 
 #Class implementing access to influxDB    
@@ -584,84 +632,3 @@ class InfluxDBInterface():
 
     return series
 
-  #def SendToInfluxDB(self,df,FeedId):
-    #Series name
-    #series = FeedId + "/raw_data" 
-    
- #   rows = 0
-
-    #Save each row
-  #  for i in range(0,Data.shape[0]):
-   #   timestamp = Data.irow(i)[0]
-    #  column = ["time"]
-     # data = [int(timestamp*1000)]
-      
-      
-      #Iterate each value and remove NANs
-    #  for j in range(1,Data.shape[1]):
-     #   if numpy.isnan(Data.iloc[i,j]):
-      #    continue
-          
-        #Add key
-     #   column.append(Data.keys()[j])
-     #   data.append(Data.iloc[i,j])
-
-      #If there where only nan on this row continue to next row. 
-    #  if len(column) == 1:
-    #    continue
-          
-    #  fdata = [{
-    #      "points": [data],
-    #      "name": FeedId,
-    #      "columns": column
-    #      }]
-
-    #  self.write_points_with_precision(fdata,"m")
-      
-     # rows += 1
-        
-   # return rows
-
-  def SendToInfluxDB(self,df,FeedId):
-    #Series name
-    #series = FeedId + "/raw_data"
-
-    rows = 0
-
-    #Save each row
-    for i in range(0,df.shape[0]):
-      timestamp = df.irow(i)[0]
-      column = ["time"]
-      data = [int(timestamp*1000)]
-
-
-      #Iterate each value and remove NANs and fix floats.
-      for j in range(1,df.shape[1]):
-        value = df.iloc[i,j]
-
-        #Float
-        if type(value) == str:
-            if value.find(",") != -1:
-                value = float(value.replace(",","."))
-        #Nan
-        elif numpy.isnan(value):
-            continue
-        #Add key
-        column.append(df.keys()[j])
-        data.append(value)
-
-      #If there where only nan on this row continue to next row.
-      if len(column) == 1:
-        continue
-
-      fdata = [{
-          "points": [data],
-          "name": FeedId,
-          "columns": column
-          }]
-
-      self.write_points_with_precision(fdata,"m")
-
-      rows += 1
-
-    return rows
