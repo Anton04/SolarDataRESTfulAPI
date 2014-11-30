@@ -166,7 +166,16 @@ class InfluxDBlayer(InfluxDBClient):
     return df_ret
 
   def QueryDf(self,query,resolution='s'):
-      return self.ResultToDataframe(self.query(query,resolution))
+      try:
+        df = self.query(query,resolution)
+      except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return None
+        else:
+            raise err
+
+
+      return self.ResultToDataframe(df)
 
 
   def GetDataPeriod(self,series,properties,start,lenght=60*60*24*7,limit=1000,time_precision='s'):
