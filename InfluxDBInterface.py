@@ -481,7 +481,7 @@ class InfluxDBInterface():
     try:
         result = self.GetDatabaseFromTopicPath(topic).query('select time from %s order desc limit 1;' % topic, time_precision='m')
     except Exception, err:
-        if err.message == "400: Couldn't find series: list_series_result":
+        if err.message.find("400: Couldn't find series:") != -1:
             return None
         else:
             raise err
