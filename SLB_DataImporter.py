@@ -112,10 +112,17 @@ class InfluxFeedLTSInterface(InfluxDBClient):
 
   def GetLastTimeStamp(self,FluxId):
 
-    result = self.query('select time from \"%s\" order desc limit 1;' % FluxId, time_precision='m')
+    try:
+        result = self.query('select time from \"%s\" order desc limit 1;' % FluxId, time_precision='m')
+
+    except Exception, err:
+        if err.message == "400: Couldn't find series: list_series_result":
+            return 0.0
+        else:
+            raise err
 
     try:
-      return float(result[0]["points"][0][0])/1000.0
+        return float(result[0]["points"][0][0])/1000.0
     except:
       return 0.0
 
