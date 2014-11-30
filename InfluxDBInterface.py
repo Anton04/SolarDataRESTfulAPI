@@ -2,6 +2,7 @@
 from influxdb import InfluxDBClient
 import json
 import pandas as pd
+import numpy
 
 
 class InfluxDBlayer(InfluxDBClient):  
