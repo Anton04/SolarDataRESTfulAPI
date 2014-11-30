@@ -172,7 +172,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                         #print lasttimestamp
 
-                        q2= ("select Max(Energy) as Energy from %s group by time(%s) where time > %s limit %i order asc" % (siteUUID,period,lasttimestamp*1000000,1))
+                        q2= ("select Max(Energy) as Energy from %s group by time(%s) where time > %s limit 1 order asc" % (siteUUID,period,lasttimestamp*1000000))
                         #print q2
 
                         df2 = DB.QueryDf(q2,'m')
@@ -182,11 +182,12 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                         df = pd.concat([df,df2])
 
-                        if q2.shape[0] > 0:
+                        if df2.shape[0] > 0:
                             shorten = 1
 
                     except:
-                        pass
+                        print "Error: calculating trailing power value"
+                        #pass
 
                     df["Power"] = df["Energy"].diff().shift(-1)
                     df["Power"].fillna("NULL",inplace = True)
