@@ -222,20 +222,21 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                         #pass
 
                     df["Energy_period"] = df["Energy"].diff().shift(-1)
+                    df["Power"] = df["Energy_period"] / (PeriodToSecs(period)/3600.0)
                     df["Energy_period"].fillna("NULL",inplace = True)
-                    df["Power"] = df["Energy_period"] #/ (PeriodToSecs(period)/3600.0)
+                    df["Power"].fillna("NULL",inplace = True)
                     df["Timestamp"] = df.index.to_series()
 
                     unpack = df.to_dict("list")
                     t = unpack["Timestamp"]
                     e = unpack["Energy"]
-
+                    e_p = unpack["Energy_period"]
                     p = unpack["Power"]
 
                     points = []
 
                     for i in range(0,len(t)-shorten):
-                        points.append([e[i],p[i],t[i]])
+                        points.append([e[i],e_p[i],p[i],t[i]])
 
                     reply["_production"] = {"points":points}
                     reply["_production"]["columns"] = list(df.columns)
