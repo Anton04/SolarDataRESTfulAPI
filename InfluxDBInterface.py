@@ -62,7 +62,14 @@ class InfluxDBlayer(InfluxDBClient):
     return ret
 
   def GetProperties(self,series):
-    res = self.query("select * from \"%s\" limit 1" % series )
+
+    try:
+        res = self.query("select * from \"%s\" limit 1" % series )
+    except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return []
+        else:
+            raise err
     if res == []:
        return []
     return res[0]["columns"][2:]
@@ -83,7 +90,14 @@ class InfluxDBlayer(InfluxDBClient):
 
     #DUE to a bug in influx db we mush query all properties and then select the ones we want. 
     qstring = "select %s from \"%s\" where time > %i order asc limit %i" % ("*",series,int(timestamp*1000000000),limit)
-    res = self.query(qstring,time_precision)
+
+    try:
+        res = self.query(qstring,time_precision)
+    except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return None
+        else:
+            raise err
 
     #print res
 
@@ -194,7 +208,13 @@ class InfluxDBlayer(InfluxDBClient):
 
     qstring = "select %s from \"%s\" where time > %iu and time < %iu limit %i" %(properties,series,start,stop,limit)
 
-    res = self.query(qstring,time_precision)
+    try:
+        res = self.query(qstring,time_precision)
+    except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return None
+        else:
+            raise err
 
     return self.ResultToDataframe(res)
 
@@ -235,7 +255,7 @@ class InfluxDBlayer(InfluxDBClient):
     series = self.ProcessSeriesParameter(series)
     properties = self.ProcessPropParameter(properties)
 
-    #TODO
+
 
     try:
         result = self.query('select %s from \"%s\" order desc limit 1;' % (properties,series), time_precision)
@@ -278,7 +298,13 @@ class InfluxDBlayer(InfluxDBClient):
 
     query = "select %s from \"%s\" where time < %i limit 1;" % (properties,series,int(At * 1000000000))
 
-    result = self.query(query, time_precision)
+    try:
+        result = self.query(query, time_precision)
+    except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return (None,None)
+        else:
+            raise err
 
     timestamp = 0 
 
@@ -308,8 +334,13 @@ class InfluxDBlayer(InfluxDBClient):
     series = self.ProcessSeriesParameter(series)
     properties = self.ProcessPropParameter(properties)
 
-    result = self.query('select %s from \"%s\" order asc limit 1;' % (properties,series), time_precision)
-
+    try:
+        result = self.query('select %s from \"%s\" order asc limit 1;' % (properties,series), time_precision)
+    except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return (None,None)
+        else:
+            raise err
     #print result
 
     timestamp = 9999999999999999
