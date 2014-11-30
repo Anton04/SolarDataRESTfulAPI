@@ -167,7 +167,13 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             if period == "0":
                 q = ("select * from \"%s\" where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
                 print q
-                data = DB.query(q,'m')
+                try:
+                   data = DB.query(q,'m')
+                except Exception, err:
+                    if err.message.find("400: Couldn't find series:") != -1:
+                        data = []
+                    else:
+                        raise err
 
                 if len(data) > 0:
                     reply["_production"] = data[0]
@@ -352,7 +358,15 @@ def getSolarObject(uid,Index,DB,Name,subset=["_meta","_production"]):
     if  "_production" in subset:
         q = ("select * from \"%s\" where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
         print q
-        data = DB.query(q,'m')
+
+        try:
+            data = DB.query(q,'m')
+        except Exception, err:
+            if err.message.find("400: Couldn't find series:") != -1:
+                data = []
+            else:
+                raise err
+
         if len(data) > 0:
             reply["_production"] = data[0]
             reply["_production"].pop("name") 
