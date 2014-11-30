@@ -215,6 +215,9 @@ def Update():
     for Site in SiteIDs:
         FeedId = "%s" % SiteIDs[Site]
         StartTime = Feeds.GetLastTimeStamp(FeedId)
+
+        if StartTime == None:
+            StartTime = 0
         
         if StartTime == 0:
             print "No previous records in: " + FeedId
