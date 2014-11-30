@@ -117,7 +117,7 @@ class InfluxFeedLTSInterface(InfluxDBClient):
 
     except Exception, err:
         if err.message == "400: Couldn't find series: list_series_result":
-            return 0.0
+            return None
         else:
             raise err
 

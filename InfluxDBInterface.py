@@ -478,7 +478,13 @@ class InfluxDBInterface():
 
   def GetLastTimeStamp(self,topic):
 
-    result = self.GetDatabaseFromTopicPath(topic).query('select time from %s order desc limit 1;' % topic, time_precision='m')
+    try:
+        result = self.GetDatabaseFromTopicPath(topic).query('select time from %s order desc limit 1;' % topic, time_precision='m')
+    except Exception, err:
+        if err.message == "400: Couldn't find series: list_series_result":
+            return None
+        else:
+            raise err
 
     try:
       return float(result[0]["points"][0][0])/1000.0
