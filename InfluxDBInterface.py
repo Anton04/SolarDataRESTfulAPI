@@ -349,7 +349,14 @@ class InfluxDBlayer(InfluxDBClient):
     else: 
         return 
 
-    self.query("delete from \"%s\" where time > %i and time < %i" %(series,From*factor,To*factor) )
+    try:
+        self.query("delete from \"%s\" where time > %i and time < %i" %(series,From*factor,To*factor) )
+    except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return
+        else:
+            raise err
+      
     
 
   def Save(self,series,DataFrame,time_precision = 's'):
