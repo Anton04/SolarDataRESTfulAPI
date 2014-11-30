@@ -77,7 +77,7 @@ def PeriodToSecs(period):
     period = period.encode("ascii","ignore")
 
     if "u" in period:
-        return float(period.strip("u"))/1000000
+        return float(period.strip("u"))/1000000.0
     elif "s" in period:
         return float(period.strip("s"))
     elif "m" in period:
@@ -89,9 +89,9 @@ def PeriodToSecs(period):
     elif "w" in period:
         return float(period.strip("w"))*3600.0*24*7
     else:
-        return float(period.strip("u"))/1000000
+        return float(period)/1000000.0
 
-
+    return
 
 
 def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
@@ -223,12 +223,13 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                     df["Energy_period"] = df["Energy"].diff().shift(-1)
                     df["Energy_period"].fillna("NULL",inplace = True)
-                    df["Power"] = df["Energy_period"] / (PeriodToSecs(period)/3600.0)
+                    df["Power"] = df["Energy_period"] #/ (PeriodToSecs(period)/3600.0)
                     df["Timestamp"] = df.index.to_series()
 
                     unpack = df.to_dict("list")
                     t = unpack["Timestamp"]
                     e = unpack["Energy"]
+
                     p = unpack["Power"]
 
                     points = []
