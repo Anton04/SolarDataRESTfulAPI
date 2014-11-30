@@ -158,6 +158,8 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                 print "__"*10
                 df = DB.QueryDf(q,'m')
 
+                shorten = 0
+
                 if type(df) == type(None):
                     reply["_production"] = {}
 
@@ -179,6 +181,10 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
 
                         df = pd.concat([df,df2])
+
+                        if q2.shape[0] > 0:
+                            shorten = 1
+
                     except:
                         pass
 
@@ -193,7 +199,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                     points = []
 
-                    for i in range(0,len(t)):
+                    for i in range(0,len(t)-shorten):
                         points.append([e[i],p[i],t[i]])
 
                     reply["_production"] = {"points":points}
