@@ -112,7 +112,7 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
         
         dfLog = LogDB.GetNextNRows(dfLog,1000)
 
-        print "At:" str(dfLog.index[-1]) + "     \r",
+        print "\tAt: %i        /r" % int(dfLog.index[-1]),
         
     return dfLog.index[-1]
 
