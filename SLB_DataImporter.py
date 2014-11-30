@@ -13,8 +13,8 @@ from IPython.display import clear_output
 import sys
 from ElasticsearchInterface import ESinterface
 import os
-from InfluxDBInterface import InfluxDBlayer
 import traceback
+import InfluxDBInterface
 
 #Change to elasticsearch     
 def LoadSiteIds(file="SiteIDs.json"):
