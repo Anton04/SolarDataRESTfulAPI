@@ -165,7 +165,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
         if  "_production" in subset:
 
             if period == "0":
-                q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+                q = ("select * from \"%s\" where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
                 print q
                 data = DB.query(q,'m')
 
@@ -185,7 +185,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
             elif period == "yearly":
                 pass
             else:
-                q= ("select Min(Energy) as Energy from %s group by time(%s) where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
+                q= ("select Min(Energy) as Energy from \"%s\" group by time(%s) where time < %s and time > %s limit %i" % (siteUUID,period,until,since,tail))
                 print q
                 print "__"*10
                 df = DB.QueryDf(q,'m')
@@ -204,7 +204,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
                         #print lasttimestamp
 
-                        q2= ("select Max(Energy) as Energy from %s group by time(%s) where time > %s limit 1 order asc" % (siteUUID,period,lasttimestamp*1000000))
+                        q2= ("select Max(Energy) as Energy from \"%s\" group by time(%s) where time > %s limit 1 order asc" % (siteUUID,period,lasttimestamp*1000000))
                         #print q2
 
                         df2 = DB.QueryDf(q2,'m')
@@ -350,7 +350,7 @@ def getSolarObject(uid,Index,DB,Name,subset=["_meta","_production"]):
 
     #Production.
     if  "_production" in subset:
-        q = ("select * from %s where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
+        q = ("select * from \"%s\" where time < %s and time > %s limit %i" % (siteUUID,until,since,tail))
         print q
         data = DB.query(q,'m')
         if len(data) > 0:

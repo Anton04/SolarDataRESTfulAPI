@@ -356,7 +356,7 @@ class InfluxDBlayer(InfluxDBClient):
             return
         else:
             raise err
-      
+
     
 
   def Save(self,series,DataFrame,time_precision = 's'):
