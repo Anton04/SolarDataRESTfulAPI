@@ -103,7 +103,7 @@ def ParseSLBData(slb_id="h00t",start=time.time()-(24*60*60),stop=time.time()):
 
 
 
-def Update():
+def Update(DB):
 
     #Set up MQTT
     ip = "localhost"
@@ -137,8 +137,6 @@ def Update():
     SiteIDs = LoadSLBSiteIds(es)
     #SiteIDs = LoadSiteIds("/root/git/SolarDataRESTfulAPI/SiteIDs.json")
     
-    Feeds = InfluxDBlayer(path + "/" + "influx2.json")
-    
     #Get all data until now + 1h
     StopTime = time.time() + 3600
     
@@ -146,7 +144,7 @@ def Update():
     
     for Site in SiteIDs:
         FeedId = "%s" % SiteIDs[Site]
-        StartTime = Feeds.GetLastTimeStamp(FeedId)
+        StartTime = DB.GetLastTimeStamp(FeedId)
 
         if StartTime == None:
             StartTime = 0
@@ -197,12 +195,12 @@ def Update():
             Current += PeriodLen
             print "Sending data to influx as: " + FeedId
             
-            r = Feeds.SendToInfluxDB(Data,FeedId)
+            r = DB.SendToInfluxDB(Data,FeedId)
             print "%i Rows written" % r
             
             sum_rows += r
             
-            AtTime = Feeds.GetLastTimeStamp(FeedId)
+            AtTime = DB.GetLastTimeStamp(FeedId)
             
             if r > 0:
                 mqtt.connect(ip,keepalive=10)
@@ -241,6 +239,10 @@ if __name__ == "__main__":
     path = os.path.abspath(os.path.dirname(sys.argv[0]))
     
     es = ESinterface()
+
+    #Init resources
+    DataLink = InfluxDBInterface.InfluxDBInterface(path + "/" + "influxInterfaceCredentials2.json")
+    LogDB = DataLink.databases[u'SolarLogdata']
 
     while True:
         Now = time.time()
