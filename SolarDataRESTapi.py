@@ -62,6 +62,38 @@ def get_parts(path_url):
 
     return parts
 
+#Reformat a influx db time period to pythons sec float.
+
+#Other options for how to specify time durations are
+# u for microseconds,
+# s for seconds,
+# m for minutes,
+# h for hours,
+# d for days and
+# w for weeks.
+# If no suffix is given the value is interpreted as microseconds
+#
+def PeriodToSecs(period):
+    period = period.encode("ascii","ignore")
+
+    if "u" in period:
+        return float(period.strip("u"))/1000000
+    elif "s" in period:
+        return float(period.strip("s"))
+    elif "m" in period:
+        return float(period.strip("m"))/1000.0
+    elif "h" in period:
+        return float(period.strip("h"))*3600.0
+    elif "d" in period:
+        return float(period.strip("d"))*3600.0*24
+    elif "w" in period:
+        return float(period.strip("w"))*3600.0*24*7
+    else:
+        return float(period.strip("u"))/1000000
+
+
+
+
 def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
 
 
@@ -189,8 +221,9 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                         print "Error: calculating trailing power value"
                         #pass
 
-                    df["Power"] = df["Energy"].diff().shift(-1)
-                    df["Power"].fillna("NULL",inplace = True)
+                    df["Energy_period"] = df["Energy"].diff().shift(-1)
+                    df["Energy_period"].fillna("NULL",inplace = True)
+                    df["Power"] = df["Energy_period"] / (PeriodToSecs(period)/3600.0)
                     df["Timestamp"] = df.index.to_series()
 
                     unpack = df.to_dict("list")
