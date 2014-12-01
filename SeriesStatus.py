@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 # <nbformat>3.0</nbformat>
 
-# <codecell>
-
-cd git/SolarDataRESTfulAPI/
-
-# <codecell>
-
 import json
 import pandas as pd
 import InfluxDBInterface
