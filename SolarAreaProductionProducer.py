@@ -102,6 +102,7 @@ def CalculateAreaProduction(area,Recalculate=False):
         sys.stdout.flush()
         SitesProductionBuf.Next()
 
+    print "\tAt: %i     " % int(SitesProductionBuf.EndPosition)
     print "\tDone!               "
 # <codecell>
 
