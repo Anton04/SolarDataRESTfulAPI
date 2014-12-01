@@ -152,7 +152,8 @@ if __name__ == "__main__":
     now = time.time()
     
     for id in areas.columns: 
-        print "Area: " + (areas[id]["Name"].encode('utf8', 'replace')
+        print "Area: " + areas[id]["Name"].encode('utf8', 'replace')
+
         #print "processing             \r",
         #time.sleep(0.5)
         CalculateAreaProduction(areas[id])
