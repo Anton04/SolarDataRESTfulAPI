@@ -153,9 +153,6 @@ if __name__ == "__main__":
     
     for id in areas.columns: 
         print "Area: " + areas[id]["Name"].encode('utf8', 'replace')
-
-        #print "processing             \r",
-        #time.sleep(0.5)
         CalculateAreaProduction(areas[id])
     
     print "All done!"
