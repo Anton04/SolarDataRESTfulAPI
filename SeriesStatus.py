@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# <nbformat>3.0</nbformat>
-
 
 import pandas as pd
 import InfluxDBInterface
