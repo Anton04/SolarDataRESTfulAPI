@@ -11,7 +11,7 @@ import json
 import pandas as pd
 import InfluxDBInterface
 import time
-reload(InfluxDBInterface)
+#reload(InfluxDBInterface)
 from ElasticsearchInterface import ESinterface
 import IoTtoolkit
 #reload(IoTtoolkit)
