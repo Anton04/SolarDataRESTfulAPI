@@ -5,7 +5,7 @@ import pandas as pd
 import InfluxDBInterface
 import time
 from ElasticsearchInterface import ESinterface
-
+import sys
 
 def EpocToDate(timestamp):
     try:
@@ -43,6 +43,7 @@ def GetRawStatusFrame():
     
     for site in Sites:
         print "*",
+        sys.stdout.flush()
         
         df.loc[site,"OpID"] = res[site]["Operator_ID"]
         
@@ -56,7 +57,8 @@ def GetRawStatusFrame():
     df["LogLag"] = now - df["LogStop"]
     df["ProdLag"] = now - df["ProdStop"]
     
-    print "\rDone!           "
+    print "\rDone!                "
+    sys.stdout.flush()
     
     
     return df
