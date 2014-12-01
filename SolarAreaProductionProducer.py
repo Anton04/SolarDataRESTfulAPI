@@ -66,6 +66,7 @@ def CalculateAreaProduction(area,Recalculate=False):
     sites = es.GetHitsMatchingPropDict("solar-sites-index","meta-data",json.loads(area["query"]))
     
     if sites.shape[1] == 0:
+        print "Returning..."
         return 
     
     SitesProduction = IoTtoolkit.Feed()
@@ -81,7 +82,8 @@ def CalculateAreaProduction(area,Recalculate=False):
         #Recalculate last week and forward. 
         SitesProductionBuf.Seek(time.time() - (14 * 24 * 3600))
     
-    print "\tprocessing             \r",
+    print "\tProcessing  "
+    #sys.stdout.flush()
     
     while not SitesProductionBuf.EOF:
         AreaProduction = AreaProductionAlgorithm(SitesProductionBuf,sites,PowerStreams,EnergyStreams)
@@ -92,6 +94,8 @@ def CalculateAreaProduction(area,Recalculate=False):
             AreaProduction2 = AreaProduction
             debugName = area.name
             break
+        print "\tAt: %i \r" % int(SitesProductionBuf.EndPosition),
+        sys.stdout.flush()
         SitesProductionBuf.Next()
 
     print "\tDone!             \r",    
