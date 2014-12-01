@@ -15,6 +15,7 @@ import os
 import argparse
 
 
+
 def AreaProductionAlgorithm(SitesProductionBuf,sites,PowerStreams,EnergyStreams):
     dfPower = SitesProductionBuf.Data[PowerStreams]
     dfEnergy = SitesProductionBuf.Data[EnergyStreams]
@@ -108,8 +109,21 @@ if __name__ == "__main__":
     parser.add_argument('-h', dest='host', default="localhost", help='MQTT host send results to')
     parser.add_argument('-t', dest='topic', default="", help='MQTT topic to process')
     parser.add_argument('-m', dest='message', default="", help='MQTT message to process')
+    parser.add_argument('-r', dest='recalc', default="", help='Force recalculation')
 
     args = parser.parse_args()
+
+    if recalc != "":
+        print "RECACULATING FROM START!"
+        print "Contol-C to cancel"
+        for f in range(5,0,-1):
+            print "Starting in %i seconds    \r" % (f),
+            sys.stdout.flush()
+            time.sleep(1)
+        Recalculate = True
+
+    else:
+        Recalculate = False
 
     #Get location of script
     path = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -157,7 +171,7 @@ if __name__ == "__main__":
     
     for id in areas.columns: 
         print "Area: " + areas[id]["Name"].encode('utf8', 'replace')
-        CalculateAreaProduction(areas[id])
+        CalculateAreaProduction(areas[id],Recalculate)
     
     print "All done!"
     
