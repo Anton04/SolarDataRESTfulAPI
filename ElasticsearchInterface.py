@@ -74,4 +74,33 @@ class ESinterface(Elasticsearch):
     
     return df
     
+  #Takes a dictionary with properties and values and returns an Elasticseach query. 
+  def MatchParamsQuery(self,dict={}):
+
+    query = []
+
+    if len(dict) == 0:
+        return {"size":1000,"query": {"match_all": {} }}
+
+    for key in dict:
+      query.append( {"match" : {key:dict[key] }} )
+
+
+    return {"size":1000,"query": {"bool": {"must":query}  }}    
+
+  def GetHitsMatchingPropDict(self,index,doc_type,dict = {} ):
+
+    #Reformat params to Elasticsearch format
+    query = self.MatchParamsQuery(dict)
+
+    res = self.search(index=index,doc_type=doc_type, body=query) 
+    print("Got %d Hits:" % res['hits']['total'])
+
+    df = pandas.DataFrame() 
     
+    for item in res['hits']['hits']:
+      df[item["_id"]] = pandas.Series(item["_source"])
+      
+    return df
+
+   
