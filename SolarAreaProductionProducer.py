@@ -102,7 +102,7 @@ def CalculateAreaProduction(area,Recalculate=False):
         sys.stdout.flush()
         SitesProductionBuf.Next()
 
-    print "\tDone!             \r",    
+    print "\tDone!               "
 # <codecell>
 
 if __name__ == "__main__":
