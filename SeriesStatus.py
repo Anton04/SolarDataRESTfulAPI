@@ -1,27 +1,12 @@
 # -*- coding: utf-8 -*-
 # <nbformat>3.0</nbformat>
 
-import json
+
 import pandas as pd
 import InfluxDBInterface
 import time
-#reload(InfluxDBInterface)
 from ElasticsearchInterface import ESinterface
-import IoTtoolkit
-#reload(IoTtoolkit)
-import sys
-import mosquitto
-import os
-import argparse
 
-DataLink = InfluxDBInterface.InfluxDBInterface("influxInterfaceCredentials2.json")
-
-LogDB = DataLink.databases[u'SolarLogdata']
-ProductionDB = DataLink.databases[u'SolarProductionSites']
-AreaDB = DataLink.databases[u'SolarProductionAreas']
-Test = DataLink.databases[u'test']
-
-es = ESinterface()
 
 def EpocToDate(timestamp):
     try:
@@ -124,6 +109,16 @@ def UpdateStatusWebpage(filename = "/var/www/html/status.html"):
 # <codecell>
 
 if __name__ == '__main__':
+
+
+    DataLink = InfluxDBInterface.InfluxDBInterface("influxInterfaceCredentials2.json")
+
+    LogDB = DataLink.databases[u'SolarLogdata']
+    ProductionDB = DataLink.databases[u'SolarProductionSites']
+    AreaDB = DataLink.databases[u'SolarProductionAreas']
+    Test = DataLink.databases[u'test']
+
+    es = ESinterface()
 
     UpdateStatusWebpage()
 
