@@ -89,7 +89,7 @@ def GetStatusFrame():
 
 # <codecell>
 
-def UpdateStatusWebpage(filename = "/var/www/html/status.html"):
+def UpdateStatusWebpage(filename = "/var/www/html/status_slb.html"):
     
     status_raw = GetRawStatusFrame()
     status = FormatStatusFrame(status_raw)
