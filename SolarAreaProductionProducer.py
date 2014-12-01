@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if recalc != "":
+    if args["recalc"] != "":
         print "RECACULATING FROM START!"
         print "Contol-C to cancel"
         for f in range(5,0,-1):
