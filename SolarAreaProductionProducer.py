@@ -83,8 +83,11 @@ def CalculateAreaProduction(area,Recalculate=False):
         #Recalculate last week and forward. 
         SitesProductionBuf.Seek(time.time() - (14 * 24 * 3600))
     
-    print "\tProcessing  "
+    print "\tProcessing...  "
     #sys.stdout.flush()
+
+    print "\tAt: %i \r" % int(SitesProductionBuf.EndPosition),
+    sys.stdout.flush()
     
     while not SitesProductionBuf.EOF:
         AreaProduction = AreaProductionAlgorithm(SitesProductionBuf,sites,PowerStreams,EnergyStreams)
