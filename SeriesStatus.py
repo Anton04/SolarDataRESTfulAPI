@@ -92,7 +92,7 @@ def GetStatusFrame():
 def UpdateStatusWebpage(filename = "/var/www/html/status_slb.html"):
     
     status_raw = GetRawStatusFrame()
-    status = FormatStatusFrame(status_raw)
+    status = FormatStatusFrame(status_raw.sort("LogLag"))
     
     html = status.to_html(max_rows=40)
     
