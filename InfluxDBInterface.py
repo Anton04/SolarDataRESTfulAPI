@@ -44,7 +44,10 @@ class InfluxDBlayer(InfluxDBClient):
     return self.GetLastValue(series,property,time_precision)[0]
 
   def GetLastTimeStamp(self,FluxId):
+    try:
       return self.GetLastValue(FluxId,"*","m")[0]/1000.0
+    except TypeError:
+      return None
 
   def GetFirstTimestamp(self,series,property = "*",time_precision='m'):
     return self.GetFirstValue(series,property,time_precision)[0]
