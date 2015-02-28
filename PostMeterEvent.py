@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+#Add path to API files. 
+import sys
+sys.path.append("/home/iot/repos/SolarDataRESTfulAPI")
+
 import pandas as pd
 import InfluxDBInterface
 import time
 from ElasticsearchInterface import ESinterface
-import sys
+import argparse
 
 def EpocToDate(timestamp):
     try:
@@ -111,18 +115,30 @@ def UpdateStatusWebpage(filename = "/var/www/html/status_slb.html"):
 
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-c', dest='credentials_file', default="/home/iot/repos/SolarDataRESTfulAPI/influxInterfaceCredentials2.json", help='Credential file')
+    parser.add_argument('-d', dest='database', default="mqtt", help='database')
+    parser.add_argument('-s', dest='series', default="", help='series')
+    parser.add_argument('-p', dest='power_key', default="power", help='name of power key')
+    parser.add_argument('-e', dest='energy_key', default="energy", help='name of energy key')
 
-    DataLink = InfluxDBInterface.InfluxDBInterface("influxInterfaceCredentials2.json")
+    args = parser.parse_args()
 
-    LogDB = DataLink.databases[u'SolarLogdata']
-    ProductionDB = DataLink.databases[u'SolarProductionSites']
-    AreaDB = DataLink.databases[u'SolarProductionAreas']
-    Test = DataLink.databases[u'test']
+    DataLink = InfluxDBInterface.InfluxDBInterface(args.credentials_file)
 
-    es = ESinterface()
+    #LogDB = DataLink.databases[u'SolarLogdata']
+    #ProductionDB = DataLink.databases[u'SolarProductionSites']
+    #AreaDB = DataLink.databases[u'SolarProductionAreas']
+    
+    DataBase = DataLink.databases[args.database]
 
-    UpdateStatusWebpage()
+    #es = ESinterface()
 
+    #UpdateStatusWebpage()
+    (time_p,power) = DataBase.GetLastValue(args.series,[arg.power_key])
+    (time_e,energy) = DataBase.GetLastValue(args.series,[arg.energy_key])
+    
+    
 
 # <codecell>
 
