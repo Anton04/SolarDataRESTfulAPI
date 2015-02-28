@@ -73,6 +73,7 @@ if __name__ == '__main__':
     if time_p != time_e:
         print "Missmatch in timestamps"
         print time_p, time_e
+        print power, energy
         exit(1);
         
     meterevent = {"time":time_e/1000.0,"power":power,"energy":energy}
