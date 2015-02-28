@@ -44,7 +44,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', dest='topic', default="test/meterevent", help='MQTT topic to process')
     #parser.add_argument('-m', dest='message', default="", help='MQTT message to process')
     
-    parser.add_argument('-c', dest='credentials_file', default="/home/iot/repos/SolarDataRESTfulAPI/influxInterfaceCredentials2.json", help='Credential file')    
+    parser.add_argument('-c', dest='credentials_file', default="/home/iot/.credentials/influxInterfaceCredentials2.json", help='Credential file')    
     parser.add_argument('-d', dest='database', help='database')
     parser.add_argument('-s', dest='series', help='series')
     parser.add_argument('-p', dest='power_key', default="power", help='name of power key')
