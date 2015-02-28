@@ -11,6 +11,7 @@ import time
 from ElasticsearchInterface import ESinterface
 import argparse
 import json
+from math import fabs
 
 def EpocToDate(timestamp):
     try:
