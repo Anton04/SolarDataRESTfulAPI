@@ -78,14 +78,16 @@ if __name__ == '__main__':
     #Connecing to the specified host 
     client = mosquitto.Mosquitto("InfluxMeterEvent")
 
-    
-
     if args.user != None:
         client.username_pw_set(args.user,args.password)
 
     client.connect(args.host)
+    print "Sending:"
+    print args.topic
+    print payload
+    print "to" args.host
 
     #Echoing the message recived. 
     client.publish(args.topic, payload, 1)
     client.disconnect()
-
+    
