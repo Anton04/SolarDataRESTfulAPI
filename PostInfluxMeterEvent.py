@@ -43,6 +43,8 @@ if __name__ == '__main__':
     parser.add_argument('-h', dest='host', default="localhost", help='MQTT host send results to')
     parser.add_argument('-t', dest='topic', default="test/meterevent", help='MQTT topic to process')
     #parser.add_argument('-m', dest='message', default="", help='MQTT message to process')
+    parser.add_argument('-u', dest='user', help='Username')
+    parser.add_argument('-P', dest='password', help='Password')
     
     parser.add_argument('-c', dest='credentials_file', default="/home/iot/.credentials/influxInterfaceCredentials2.json", help='Credential file')    
     parser.add_argument('-d', dest='database', help='database')
@@ -63,8 +65,8 @@ if __name__ == '__main__':
     #es = ESinterface()
 
     #UpdateStatusWebpage()
-    (time_p,power) = DataBase.GetLastValue(args.series,[arg.power_key])
-    (time_e,energy) = DataBase.GetLastValue(args.series,[arg.energy_key])
+    (time_p,power) = DataBase.GetLastValue(args.series,[args.power_key])
+    (time_e,energy) = DataBase.GetLastValue(args.series,[args.energy_key])
     
     if time_p != time_e:
         exit(1);
@@ -76,11 +78,10 @@ if __name__ == '__main__':
     #Connecing to the specified host 
     client = mosquitto.Mosquitto("InfluxMeterEvent")
 
-    user = None
-    password = "1234"
+    
 
-    if user != None:
-        client.username_pw_set(user,password)
+    if args.user != None:
+        client.username_pw_set(args.user,args.password)
 
     client.connect(args.host)
 
