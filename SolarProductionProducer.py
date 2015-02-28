@@ -37,7 +37,7 @@ def RemoveResets(series):
     change.iloc[0] = FirstValue
     return change.cumsum()
 
-def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
+def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
 
     #Create property lists
     EnergyProp = LogDB.GetPropertiesPartiallyMatchingAbutNotB(Site,"POWc","Tot")
@@ -103,6 +103,14 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False):
         #Update database
         ProductionDB.Replace(Site,dfProduction)
         
+        #Update mqtt
+        if mqtt != None:
+            ts = dfProduction.iloc[-1].name
+            power = dfProduction.iloc[-1].Power
+            energy = dfProduction.iloc[-1].Energy
+            payload = json.dumps({"time":ts,"power":power,"energy":energy})
+            mqtt.publish(topic = "solardata/sites/%s/meterevent" % Site, payload=payload, qos=1, retain=True) 
+        
         #Keep track of counter max.
         MaxEnergyTime = dfProduction["Energy"].idxmax()
         
@@ -154,6 +162,7 @@ if __name__ == '__main__':
     #mqtt.will_set( topic =  "system/" + prefix, payload="Idle", qos=1, retain=True)
     mqtt.connect(ip,keepalive=10)
     mqtt.publish(topic = "system/"+ prefix, payload="Updating", qos=1, retain=True)
+    mqtt.loop_start()
 
 
     #Init resources 
@@ -173,7 +182,7 @@ if __name__ == '__main__':
         
         sys.stdout.flush()
 
-        until = CalculateProduction(Site,LogDB,ProductionDB,False)
+        until = CalculateProduction(Site,LogDB,ProductionDB,False,mqtt)
         
         until = int(now - until)
         
