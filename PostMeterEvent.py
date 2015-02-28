@@ -10,6 +10,7 @@ import InfluxDBInterface
 import time
 from ElasticsearchInterface import ESinterface
 import argparse
+import json
 
 def EpocToDate(timestamp):
     try:
@@ -116,7 +117,12 @@ def UpdateStatusWebpage(filename = "/var/www/html/status_slb.html"):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-c', dest='credentials_file', default="/home/iot/repos/SolarDataRESTfulAPI/influxInterfaceCredentials2.json", help='Credential file')
+    
+    parser.add_argument('-h', dest='host', default="localhost", help='MQTT host send results to')
+    parser.add_argument('-t', dest='topic', default="test/meterevent", help='MQTT topic to process')
+    #parser.add_argument('-m', dest='message', default="", help='MQTT message to process')
+    
+    parser.add_argument('-c', dest='credentials_file', default="/home/iot/repos/SolarDataRESTfulAPI/influxInterfaceCredentials2.json", help='Credential file')    
     parser.add_argument('-d', dest='database', default="mqtt", help='database')
     parser.add_argument('-s', dest='series', default="", help='series')
     parser.add_argument('-p', dest='power_key', default="power", help='name of power key')
@@ -138,8 +144,25 @@ if __name__ == '__main__':
     (time_p,power) = DataBase.GetLastValue(args.series,[arg.power_key])
     (time_e,energy) = DataBase.GetLastValue(args.series,[arg.energy_key])
     
+    if time_p != time_e:
+        exit(1);
+        
+    meterevent = {"time":time_e/1000.0,"power":power,"energy":energy}
     
+    payload = json.dumps(meterevent)
 
-# <codecell>
+    #Connecing to the specified host 
+    client = mosquitto.Mosquitto("InfluxMeterEvent")
 
+    user = None
+    password = "1234"
+
+    if user != None:
+        client.username_pw_set(user,password)
+
+    client.connect(args.host)
+
+    #Echoing the message recived. 
+    client.publish(args.topic, payload, 1)
+    client.disconnect()
 
