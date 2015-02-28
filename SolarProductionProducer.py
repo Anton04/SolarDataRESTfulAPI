@@ -120,7 +120,7 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
     if NewData and mqtt != None:
         ts = dfProduction.iloc[-1].name
         power = dfProduction.iloc[-1].Power
-        energy = dfProduction.iloc[-1].Energy
+        energy = dfProduction["Energy"].max()
         payload = json.dumps({"time":ts,"power":power,"energy":energy})
         mqtt.publish(topic = "solardata/sites/%s/meterevent" % Site, payload=payload, qos=1, retain=True) 
         
