@@ -12,6 +12,7 @@ from ElasticsearchInterface import ESinterface
 import argparse
 import json
 from math import fabs
+import mosquitto
 
 def EpocToDate(timestamp):
     try:
