@@ -70,7 +70,7 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
         #Get a log data chunck
         dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,1000)
         
-    dfProduction = None
+    NewData = False
     
     while (dfLog.shape[0] > 1):
 
@@ -102,7 +102,7 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
         #Update database
         ProductionDB.Replace(Site,dfProduction)
         
-        
+        NewData = True
         
         #Keep track of counter max.
         MaxEnergyTime = dfProduction["Energy"].idxmax()
@@ -117,7 +117,7 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
         sys.stdout.flush()
         
     #Update mqtt
-    if dfProduction != None and mqtt != None:
+    if NewData and mqtt != None:
         ts = dfProduction.iloc[-1].name
         power = dfProduction.iloc[-1].Power
         energy = dfProduction.iloc[-1].Energy
