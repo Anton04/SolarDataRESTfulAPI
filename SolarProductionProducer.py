@@ -70,11 +70,10 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
         #Get a log data chunck
         dfLog = LogDB.GetDataAfterTime(Site,EnergyProp + PowerProp,None,1000)
         
+    dfProduction = None
     
     while (dfLog.shape[0] > 1):
 
-
-    
         #Create a production frame.
         dfProduction = pd.DataFrame(columns = ["Power","Energy"])
         
@@ -103,13 +102,7 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
         #Update database
         ProductionDB.Replace(Site,dfProduction)
         
-        #Update mqtt
-        if mqtt != None:
-            ts = dfProduction.iloc[-1].name
-            power = dfProduction.iloc[-1].Power
-            energy = dfProduction.iloc[-1].Energy
-            payload = json.dumps({"time":ts,"power":power,"energy":energy})
-            mqtt.publish(topic = "solardata/sites/%s/meterevent" % Site, payload=payload, qos=1, retain=True) 
+        
         
         #Keep track of counter max.
         MaxEnergyTime = dfProduction["Energy"].idxmax()
@@ -122,6 +115,14 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
 
         print "\tAt: %i        \r" % int(dfLog.index[-1]),
         sys.stdout.flush()
+        
+    #Update mqtt
+    if dfProduction != None and mqtt != None:
+        ts = dfProduction.iloc[-1].name
+        power = dfProduction.iloc[-1].Power
+        energy = dfProduction.iloc[-1].Energy
+        payload = json.dumps({"time":ts,"power":power,"energy":energy})
+        mqtt.publish(topic = "solardata/sites/%s/meterevent" % Site, payload=payload, qos=1, retain=True) 
         
     return dfLog.index[-1]
 
