@@ -97,7 +97,7 @@ if __name__ == '__main__':
     print "Sending:"
     print args.topic
     print payload
-    print "to" + args.host
+    print "to: " + args.host
 
     #Echoing the message recived. 
     client.publish(args.topic, payload, 1)
