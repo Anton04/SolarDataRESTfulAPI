@@ -68,7 +68,11 @@ if __name__ == '__main__':
     (time_p,power) = DataBase.GetLastValue(args.series,[args.power_key])
     (time_e,energy) = DataBase.GetLastValue(args.series,[args.energy_key])
     
+    
+    
     if time_p != time_e:
+        print "Missmatch in timestamps"
+        print time_p, time_e
         exit(1);
         
     meterevent = {"time":time_e/1000.0,"power":power,"energy":energy}
