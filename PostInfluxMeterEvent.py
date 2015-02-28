@@ -70,13 +70,18 @@ if __name__ == '__main__':
     
     
     
-    if time_p != time_e:
+    if fabs(time_p - time_e) > 1000*60*60*24:
         print "Missmatch in timestamps"
         print time_p, time_e
         print power, energy
         exit(1);
         
-    meterevent = {"time":time_e/1000.0,"power":power,"energy":energy}
+    if time_p > time_e:
+        time = time_p/1000.0
+    else:
+        time = time_e/1000.0
+    
+    meterevent = {"time":time,"power":power,"energy":energy}
     
     payload = json.dumps(meterevent)
 
