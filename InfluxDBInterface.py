@@ -148,7 +148,7 @@ class InfluxDBlayer(InfluxDBClient):
     pproperties = self.ProcessPropParameter(properties)
 
     #DUE to a bug in influx db we mush query all properties and then select the ones we want. 
-    qstring = "select %s from \"%s\" where time < %i order asc limit %i" % ("*",series,int(timestamp*1000000000),limit)
+    qstring = "select %s from \"%s\" where time < %i order desc limit %i" % ("*",series,int(timestamp*1000000000),limit)
 
     try:
         res = self.query(qstring,time_precision)
