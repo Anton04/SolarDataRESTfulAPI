@@ -56,6 +56,9 @@ def CalculateProduction(Site,LogDB,ProductionDB,Recalculate=False,mqtt=None):
             #The start from where we have both power and energy values. 
             if TimestampP < PreviousLastValidValueTime:
                 PreviousLastValidValueTime = TimestampP
+                dfPrevLast = ProductionDB.GetDataBeforeTime(Site,"Energy",TimestampP/1000,1)
+                PreviousLastValidValue = dfPrevLast["Energy"].iloc[0]
+                PreviousLastValidValueTime = dfPrevLast["Energy"].index[0] * 1000
                 
             PreviousLastValidValueTime = PreviousLastValidValueTime / 1000
                 
