@@ -136,61 +136,61 @@ class InfluxDBlayer(InfluxDBClient):
 
     return df
 
-    def GetDataBeforeTime(self,series,properties="*",timestamp=None,limit=10,time_precision='s'):
+  def GetDataBeforeTime(self,series,properties="*",timestamp=None,limit=10,time_precision='s'):
     
-      #Handle indexing instead of name
-      series = self.ProcessSeriesParameter(series)    
+    #Handle indexing instead of name
+    series = self.ProcessSeriesParameter(series)    
 
-      #If no time specified start from the beginning. 
-      if timestamp == None:
-          timestamp = self.GetFirstTimestamp(series,properties,'m')/1000.0
+    #If no time specified start from the beginning. 
+    if timestamp == None:
+        timestamp = self.GetFirstTimestamp(series,properties,'m')/1000.0
 
-      pproperties = self.ProcessPropParameter(properties)
+    pproperties = self.ProcessPropParameter(properties)
 
-      #DUE to a bug in influx db we mush query all properties and then select the ones we want. 
-      qstring = "select %s from \"%s\" where time < %i order asc limit %i" % ("*",series,int(timestamp*1000000000),limit)
+    #DUE to a bug in influx db we mush query all properties and then select the ones we want. 
+    qstring = "select %s from \"%s\" where time < %i order asc limit %i" % ("*",series,int(timestamp*1000000000),limit)
 
-      try:
-          res = self.query(qstring,time_precision)
-      except Exception, err:
-          if err.message.find("400: Couldn't find series:") != -1:
-              return None
-          else:
-              raise err
+    try:
+        res = self.query(qstring,time_precision)
+    except Exception, err:
+        if err.message.find("400: Couldn't find series:") != -1:
+            return None
+        else:
+            raise err
 
-      #print res
+    #print res
 
-      df =  self.ResultToDataframe(res)
+    df =  self.ResultToDataframe(res)
 
-      if type(df) != pd.DataFrame:
-        return None
+    if type(df) != pd.DataFrame:
+      return None
 
-      if type(properties) == list:
-        #Add missing parameters
-        for prop in properties:
-          if not prop in df.columns:
-            df[prop] = float("NaN")
+    if type(properties) == list:
+      #Add missing parameters
+      for prop in properties:
+        if not prop in df.columns:
+          df[prop] = float("NaN")
 
-        df = df[properties]
-      elif properties != "*":
-        df = df[[properties]]
+      df = df[properties]
+    elif properties != "*":
+      df = df[[properties]]
 
-      #Return empty 
-      if type(df) != pd.DataFrame:
-        return pd.DataFrame()
+    #Return empty 
+    if type(df) != pd.DataFrame:
+      return pd.DataFrame()
 
-      #Cut lenght  
-      if df.shape[0] > limit:
-        df = df.iloc[:limit]
+    #Cut lenght  
+    if df.shape[0] > limit:
+      df = df.iloc[:limit]
 
-      #print "*"*20
-      #print df
+    #print "*"*20
+    #print df
 
-      if type(df) == pd.core.frame.DataFrame:
-        df.series = series
-        df.properties = properties 
+    if type(df) == pd.core.frame.DataFrame:
+      df.series = series
+      df.properties = properties 
 
-      return df
+    return df
 
 
 
