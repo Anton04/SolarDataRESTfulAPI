@@ -238,7 +238,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                     #Add fixes for delayed data that is accumulated to a single reading. 
                     if fixdata:
                        #Establish max power
-                       maxpower = float(hit["_source"]["Pmax"])*1000 * 
+                       maxpower = float(hit["_source"]["Pmax"])*1000 * 2
                        #Set everything above maxpower to NaN
                        df["Power"].loc[df["Power"]>maxpower]=float("NaN")
 
