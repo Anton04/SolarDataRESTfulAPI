@@ -128,6 +128,7 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
     lowercase = request.args.get("lowercase","False",type=str)
     lowercase = lowercase.lower()
     period = request.args.get("period","0",type=str)
+    fixdata = bool(request.args.get("fixdata","True",type=str))
 
     if  lowercase == "true":
         lowercase = True
@@ -232,6 +233,14 @@ def getSolarObjects(keys,Index,DB,Name,subset=["_meta","_production"]):
                     df["Energy_period"].fillna("NULL",inplace = True)
                     df["Power"].fillna("NULL",inplace = True)
                     df["Timestamp"] = df.index.to_series()
+
+
+                    #Add fixes for delayed data that is accumulated to a single reading. 
+                    if fixdata:
+                       #Establish max power
+                       maxpower = float(hit["_source"]["Pmax"])*1000 * 
+                       #Set everything above maxpower to NaN
+                       df["Power"].loc[df["Power"]>maxpower]=float("NaN")
 
                     unpack = df.to_dict("list")
                     t = unpack["Timestamp"]
